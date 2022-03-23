@@ -1,0 +1,23 @@
+## Interface: 70000
+## Title: Epsi Iskar Assist
+## Notes: Iskar Assistant
+## Author: Skamer
+## X-Author-Server: Kirin-Tor EU
+## X-Author-Faction: Alliance
+## X-License: BSD
+## Version: 1.0.4 (Release)
+## X-Category: Raid
+## X-Localizations: enUS
+## X-Category: Boss Encounters
+## X-Website: http://www.curse.com/addons/wow/epsi-iskar-assist
+## SavedVariables: EpsiIskarAssistDB
+## OptionalDeps: Ace3
+## X-Curse-Packaged-Version: r20160722150824
+## X-Curse-Project-Name: Epsi Iskar Assist
+## X-Curse-Project-ID: epsi-iskar-assist
+## X-Curse-Repository-ID: wow/epsi-iskar-assist/mainline
+
+embeds.xml
+
+EpsiIskarAssist.lua
+EyeOfAnzuAssist.lua
