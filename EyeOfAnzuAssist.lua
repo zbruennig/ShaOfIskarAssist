@@ -27,7 +27,7 @@ local SKAM_BAR = [[Interface\Addons\EpsiIskarAssist\Media\skam_bar]]
 -- ********************
 -- *** Macro Format ***
 -- ********************
-local MacroEyeOfAnzu = "/target %s\n/click ExtraActionButton1\n/targetlasttarget"
+local MacroEyeOfAnzu = "/target %s\n/run SendChatMessage('Ball to '..UnitName(%s), 'YELL')\n/click ExtraActionButton1\n/targetlasttarget"
 
 -- ************
 -- *** Data ***
@@ -337,8 +337,7 @@ function EyeOfAnzuAssist:UpdateRangePlayer(frame, unit)
 
     if not unit then return end
 
-    local range = math.floor(UnitDistanceSquared(unit) ^ 0.5)
-    if range > 40 then
+    if not UnitInRange(unit) then
         frame:SetAlpha(self.db.profile.rangeIndicator.alpha)
     else
         frame:SetAlpha(1)
@@ -671,7 +670,7 @@ function EyeOfAnzuAssist:UpdatePlayerFrame(frame, unit)
 
   frame.name:SetTextColor(color.r, color.g, color.b, 1)
 
-  frame.button:SetAttribute("macrotext", string.format(MacroEyeOfAnzu, unit))
+  frame.button:SetAttribute("macrotext", string.format(MacroEyeOfAnzu, unit, '"'..unit..'"'))
   frame.button:SetAttribute("unit", unit)
 end
 
@@ -1009,7 +1008,7 @@ the MEDIUM strata) :
 						order = 0,
 
 					},
-					winds = {
+					huddles = {
 						type = "group",
 						name = string.format("%s %s", EIA:GetIconText(AURA_HUDDLE_IN_TERROR_ICON, 18, 18), AURA_HUDDLE_IN_TERROR),
 						inline = true,

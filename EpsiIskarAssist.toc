@@ -1,15 +1,15 @@
 ## Interface: 70000
 ## Title: Epsi Iskar Assist
 ## Notes: Iskar Assistant
-## Author: Skamer
-## X-Author-Server: Kirin-Tor EU
-## X-Author-Faction: Alliance
+## Author: Vivacity and Evil
+## X-Author-Server: stormforge.gg
+## X-Author-Faction: Horde
 ## X-License: BSD
-## Version: 1.0.4 (Release)
+## Version: 1.0.5 (Release)
 ## X-Category: Raid
 ## X-Localizations: enUS
 ## X-Category: Boss Encounters
-## X-Website: http://www.curse.com/addons/wow/epsi-iskar-assist
+## X-Website: https://github.com/zbruennig/ShaOfIskarAssist
 ## SavedVariables: EpsiIskarAssistDB
 ## OptionalDeps: Ace3
 ## X-Curse-Packaged-Version: r20160722150824
