@@ -40,11 +40,7 @@ local Ticker = nil
 local _, MyClass = UnitClass("player")
 
 
-local Winds = {}
-local Wounds = {}
-local DarkBindings = {}
-local Corruptions = {}
-local FelBomb = nil
+local Huddles = {}
 local EyeOfAnzu = nil
 
 local PreviousHealerCount = 0
@@ -55,14 +51,8 @@ local PreviousDpsCount = 0
 -- ****************************
 -- *** Localized spell name ***
 -- ****************************
-local AURA_EYE_OF_ANZU, _, AURA_EYE_OF_ANZU_ICON = GetSpellInfo(EIA.AuraEyeOfAnzuSpellID)
-local AURA_PHANTASMAL_WINDS, _, AURA_PHANTASMAL_WINDS_ICON = GetSpellInfo(EIA.AuraPhantasmalWindsSpellID)
-local AURA_PHANTASMAL_WOUNDS, _, AURA_PHANTASMAL_WOUNDS_ICON = GetSpellInfo(EIA.AuraPhantasmalWoundsSpellID)
-local AURA_PHANTASMAL_FEL_BOMB = GetSpellInfo(EIA.AuraPhantasmalFelBombSpellID)
-local AURA_FEL_BOMB, _, AURA_FEL_BOMB_ICON = GetSpellInfo(EIA.AuraFelBombSpellID)
-local AURA_PHANTASMAL_CORRUPTION, _, AURA_PHANTASMAL_CORRUPTION_ICON = GetSpellInfo(EIA.AuraPhantasmalCorruptionSpellID)
-local AURA_DARK_BINDINGS, _, AURA_DARK_BINDINGS_ICON = GetSpellInfo(EIA.AuraDarkBindingsSpellID)
-local AURA_RADIANCE_OF_ANZU, _, AURA_RADIANCE_OF_ANZU_ICON = GetSpellInfo(EIA.AuraRadianceOfAnzuSpellID)
+local AURA_CHAMPION_OF_THE_LIGHT, _, AURA_CHAMPION_OF_THE_LIGHT_ICON = GetSpellInfo(EIA.AuraChampionOfTheLightSpellID)
+local AURA_HUDDLE_IN_TERROR, _, AURA_HUDDLE_IN_TERROR_ICON = GetSpellInfo(EIA.AuraHuddleInTerrorSpellID)
 
 local DebuffsDB = nil
 
@@ -88,7 +78,7 @@ local defaults = {
       useClassColor = true,
     },
     debuffs = {
-      winds = {
+      huddles = {
         show = true,
         color = {
           r = 1,
@@ -96,76 +86,10 @@ local defaults = {
           b = 0
         },
         priority = 1, -- currently unused
-      },
-      wounds = {
-        show = true,
-        color = {
-          r = 1,
-          g = 0,
-          b = 1
-        },
-        priority = 4, -- currently unused
-      },
-      felBomb = {
-        show = true,
-        color = {
-          r = 0,
-          g = 1,
-          b = 0,
-        },
-        priority = 0,
-      },
-      corruption = {
-        show = true,
-        color = {
-          r = 1,
-          g = 0.85,
-          b = 0,
-        },
-        priority = 3,
-      },
-      darkBindings = {
-        show = true,
-        color = {
-          r = 0.49,
-          g = 0.29,
-          b = 0.09,
-        },
-        priority = 2,
       }
     },
     eyeOfAnzu = {
       show = true,
-      showRadianceOfAnzu = true,
-    },
-    radianceOfAnzu = {
-      show = true,
-      showIcon = false,
-      stack = {
-        low = {
-          threshold = 10,
-          color = {
-            r = 0,
-            g = 1,
-            b = 0,
-          }
-        },
-        medium = {
-          threshold = 20,
-          color = {
-            r = 1,
-            g = 0.5,
-            b = 0,
-          }
-        },
-        high = {
-          color = {
-            r = 1,
-            g = 0,
-            b = 0,
-          }
-        }
-      }
     }
   }
 }
@@ -220,11 +144,7 @@ function EyeOfAnzuAssist:OnEnable()
   TankData = { previousCount = 0, frames = {}, indexesFrame = {}, groupFrame = nil }
   DpsData = { previousCount = 0, frames = {}, indexesFrame = {}, groupFrame = nil }
 
-  Winds = {}
-  Wounds = {}
-  DarkBindings = {}
-  Corruptions = {}
-  FelBomb = {}
+  Huddles = {}
   EyeOfAnzu = {}
 
   PreviousHealerCount = 0
@@ -286,11 +206,7 @@ function EyeOfAnzuAssist:OnDisable()
   TankData = nil
   DpsData = nil
 
-  Winds = nil
-  Wounds = nil
-  DarkBindings = nil
-  Corruptions = nil
-  FelBomb = nil
+  Huddles = nil
   EyeOfAnzu = nil
 
   PreviousHealerCount = nil
@@ -374,8 +290,6 @@ function EyeOfAnzuAssist:UpdateRoleFrame(role)
       frame.button:Hide()
       frame.texture:Hide()
       frame.name:Hide()
-      frame.radianceOfAnzuIcon:Hide()
-      frame.radianceOfAnzuStack:Hide()
     end
   elseif currentRoleCount > PreviousHealerCount then
     local addedFrameCount = currentRoleCount - roleData.previousCount
@@ -387,15 +301,12 @@ function EyeOfAnzuAssist:UpdateRoleFrame(role)
           local yRatio = math.floor((roleData.previousCount + i) / 2)
           if ((roleData.previousCount + i) % 2) == 0 then
             frame:SetPoint("TOP", roleData.groupFrame, "TOP", 0,  -30 * scale - yRatio * DPS_PLAYER_FRAME_HEIGHT * scale)
-            frame.radianceOfAnzuIcon:SetPoint("RIGHT", frame, "LEFT", 0, 0)
           else
             frame:SetPoint("TOP", roleData.groupFrame, "TOP", DPS_PLAYER_FRAME_WIDTH * scale  + 5 * scale, -30 * scale - yRatio * DPS_PLAYER_FRAME_HEIGHT * scale)
-            frame.radianceOfAnzuIcon:SetPoint("LEFT", frame, "RIGHT", 0, 0)
           end
 
           frame:SetSize(DPS_PLAYER_FRAME_WIDTH * scale, DPS_PLAYER_FRAME_HEIGHT * scale)
         else
-        frame.radianceOfAnzuIcon:SetPoint("RIGHT", frame, "LEFT", 0, 0)
         frame:SetPoint("TOP", roleData.groupFrame, "TOP", 0, -30 * scale - (roleData.previousCount + i) * PLAYER_FRAME_HEIGHT * scale)
         end
         roleData.frames[roleData.previousCount + i] = frame
@@ -462,14 +373,8 @@ end
 function EyeOfAnzuAssist:AddDebuff(guid, debuffName)
     if self:HasDebuff(guid, debuffName) then return end
 
-    if debuffName == AURA_PHANTASMAL_WINDS then
-      tinsert(Winds, guid)
-    elseif debuffName == AURA_PHANTASMAL_WOUNDS then
-      tinsert(Wounds, guid)
-    elseif debuffName == AURA_DARK_BINDINGS then
-      tinsert(DarkBindings, guid)
-    elseif debuffName == AURA_PHANTASMAL_CORRUPTION then
-      tinsert(Corruptions, guid)
+    if debuffName == AURA_HUDDLE_IN_TERROR then
+      tinsert(Huddles, guid)
     end
 end
 
@@ -478,85 +383,19 @@ function EyeOfAnzuAssist:RemoveDebuff(guid, debuffName)
 
     if not hasDebuff then return end
 
-    if debuffName == AURA_PHANTASMAL_WINDS then
-      tremove(Winds, index)
-    elseif debuffName == AURA_PHANTASMAL_WOUNDS then
-      tremove(Wounds, index)
-    elseif debuffName == AURA_DARK_BINDINGS then
-      tremove(DarkBindings, index)
-    elseif debuffName == AURA_PHANTASMAL_CORRUPTION then
-      tremove(Corruptions, index)
+    if debuffName == AURA_HUDDLE_IN_TERROR then
+      tremove(Huddles, index)
     end
 end
 
 function EyeOfAnzuAssist:HasDebuff(guid, debuffName)
-    if debuffName == AURA_FEL_BOMB then
-      if FelBomb and FelBomb == guid then return true, nil end
-    elseif debuffName == AURA_PHANTASMAL_WINDS then
-  		for index, playerGUID in ipairs(Winds) do
-  			if guid == playerGUID then return true, index end
-  		end
-  	elseif debuffName == AURA_PHANTASMAL_WOUNDS then
-  		for index, playerGUID in ipairs(Wounds) do
-  			if guid == playerGUID then return true, index end
-  		end
-  	elseif debuffName == AURA_DARK_BINDINGS then
-  		for index, playerGUID in ipairs(DarkBindings) do
-  			if guid == playerGUID then return true, index end
-  		end
-  	elseif debuffName == AURA_PHANTASMAL_CORRUPTION then
-  		for index, playerGUID in ipairs(Corruptions) do
+    if debuffName == AURA_HUDDLE_IN_TERROR then
+  		for index, playerGUID in ipairs(Huddles) do
   			if guid == playerGUID then return true, index end
   		end
   	end
 
   	return false, nil
-end
-
-function EyeOfAnzuAssist:SetFelBomb(guid)
-  -- if the user doesn't want show this debuff, don't continue
-	if not DebuffsDB.felBomb.show then return end
-
-  if not FelBomb and not guid then return end
-
-  local g = nil
-
-  if guid then
-    g = guid
-    FelBomb = guid
-  else
-    g = FelBomb
-    FelBomb = nil
-  end
-
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(g))
-
-  local frame = self:GetPlayerFrame(g, role)
-
-  if not frame then return end
-
-  local color = nil
-  -- If Felbomb is ~= nil, Felbomb is added
-  if FelBomb then
-    color = DebuffsDB.felBomb.color
-  else
-    if self:HasDebuff(g, AURA_PHANTASMAL_WINDS) then
-      color = DebuffsDB.winds.color
-    elseif self:HasDebuff(g, AURA_DARK_BINDINGS) then
-      color = DebuffsDB.darkBindings.color
-    elseif self:HasDebuff(g, AURA_PHANTASMAL_CORRUPTION) then
-      color = DebuffsDB.corruption.color
-    elseif self:HasDebuff(g, AURA_PHANTASMAL_WOUNDS) then
-      color = DebuffsDB.wounds.color
-    end
-  end
-
-  if color then
-    frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
-  else
-    frame.texture:SetVertexColor(1, 1, 1, 1)
-  end
-
 end
 
 function EyeOfAnzuAssist:SetEyeOfAnzu(guid)
@@ -586,7 +425,7 @@ end
 function EyeOfAnzuAssist:AddWind(guid)
   -- if the user doesn't want show this debuff, don't continue
 
-	if not DebuffsDB.winds.show then return end
+	if not DebuffsDB.huddles.show then return end
 
   local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
   local frame = self:GetPlayerFrame(guid, role)
@@ -594,234 +433,27 @@ function EyeOfAnzuAssist:AddWind(guid)
   if not frame then return end
 
 
-  self:AddDebuff(guid, AURA_PHANTASMAL_WINDS)
+  self:AddDebuff(guid, AURA_HUDDLE_IN_TERROR)
 
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  if not self:HasDebuff(guid, AURA_FEL_BOMB) then
-    local color = DebuffsDB.winds.color
+  if true then
+    local color = DebuffsDB.huddles.color
     frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
   end
 end
 
 function EyeOfAnzuAssist:RemoveWind(guid)
   -- if the user doesn't want show this debuff, don't continue
-  if not DebuffsDB.winds.show then return end
+  if not DebuffsDB.huddles.show then return end
 
   local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
   local frame = self:GetPlayerFrame(guid, role)
 
   if not frame then return end
 
-  self:RemoveDebuff(guid, AURA_PHANTASMAL_WINDS)
+  self:RemoveDebuff(guid, AURA_HUDDLE_IN_TERROR)
 
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  local color = nil
-  if self:HasDebuff(guid, AURA_FEL_BOMB) then
-    return
-  elseif self:HasDebuff(guid, AURA_DARK_BINDINGS) then
-    color = DebuffsDB.darkBindings.color
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_CORRUPTION) then
-    color = DebuffsDB.corruption.color
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_WOUNDS) then
-    color = DebuffsDB.wounds.color
-  end
-
-  if color then
-    frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
-  else
-    frame.texture:SetVertexColor(1, 1, 1, 1)
-  end
+  frame.texture:SetVertexColor(1, 1, 1, 1)
 end
-
-function EyeOfAnzuAssist:AddWound(guid)
-  -- if the user doesn't want show this debuff, don't continue
-  if not DebuffsDB.wounds.show then return end
-
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
-  local frame = self:GetPlayerFrame(guid, role)
-
-  if not frame then return end
-
-  self:AddDebuff(guid, AURA_PHANTASMAL_WOUNDS)
-
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  if not self:HasDebuff(guid, AURA_FEL_BOMB) and not self:HasDebuff(guid, AURA_PHANTASMAL_WINDS) and not self:HasDebuff(guid, AURA_DARK_BINDINGS) and not self:HasDebuff(guid, AURA_PHANTASMAL_CORRUPTION) then
-    local color = DebuffsDB.wounds.color
-    frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
-  end
-
-end
-
-function EyeOfAnzuAssist:RemoveWound(guid)
-  -- if the user doesn't want show this debuff, don't continue
-  if not DebuffsDB.wounds.show then return end
-
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
-  local frame = self:GetPlayerFrame(guid, role)
-
-  if not frame then return end
-
-  self:RemoveDebuff(guid, AURA_PHANTASMAL_WOUNDS)
-
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  if self:HasDebuff(guid, AURA_FEL_BOMB) then
-    return
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_WINDS) then
-    return
-  elseif self:HasDebuff(guid, AURA_DARK_BINDINGS) then
-    return
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_CORRUPTION) then
-    return
-  else
-    frame.texture:SetVertexColor(1, 1, 1, 1)
-  end
-
-end
-
-function EyeOfAnzuAssist:AddDarkBinding(guid)
-  -- if the user doesn't want show this debuff, don't continue
-	if not DebuffsDB.darkBindings.show then return end
-
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
-  local frame = self:GetPlayerFrame(guid, role)
-
-  if not frame then return end
-
-  self:AddDebuff(guid, AURA_DARK_BINDINGS)
-
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  if not self:HasDebuff(guid, AURA_FEL_BOMB) and not self:HasDebuff(guid, AURA_PHANTASMAL_WINDS) then
-    --frame.texture:SetVertexColor(1, 0, 1, 1)
-    local color = DebuffsDB.darkBindings.color
-    frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
-  end
-end
-
-function EyeOfAnzuAssist:RemoveDarkBinding(guid)
-  -- if the user doesn't want show this debuff, don't continue
-  if not DebuffsDB.darkBindings.show then return end
-
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
-  local frame = self:GetPlayerFrame(guid, role)
-
-  if not frame then return end
-
-  self:RemoveDebuff(guid, AURA_DARK_BINDINGS)
-
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  local color = nil
-  if self:HasDebuff(guid, AURA_FEL_BOMB) then
-    return
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_WINDS) then
-    return
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_CORRUPTION) then
-    color = DebuffsDB.corruption.color
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_WOUNDS) then
-    color = DebuffsDB.wounds.color
-  end
-
-  if color then
-    frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
-  else
-    frame.texture:SetVertexColor(1, 1, 1, 1)
-  end
-
-end
-
-function EyeOfAnzuAssist:AddCorruption(guid)
-  -- if the user doesn't want show this debuff, don't continue
-  if not DebuffsDB.corruption.show then return end
-
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
-  local frame = self:GetPlayerFrame(guid, role)
-
-  if not frame then return end
-
-  self:AddDebuff(guid, AURA_PHANTASMAL_CORRUPTION)
-
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  if not self:HasDebuff(guid, AURA_FEL_BOMB) and not self:HasDebuff(guid, AURA_PHANTASMAL_WINDS) and not self:HasDebuff(guid, AURA_DARK_BINDINGS) then
-    local color = DebuffsDB.corruption.color
-		frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
-	end
-end
-
-function EyeOfAnzuAssist:RemoveCorruption(guid)
-  -- if the user doesn't want show this debuff, don't continue
-  if not DebuffsDB.corruption.show then return end
-
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
-  local frame = self:GetPlayerFrame(guid, role)
-
-  if not frame then return end
-
-  self:RemoveDebuff(guid, AURA_PHANTASMAL_CORRUPTION)
-
-  -- Color Priority ( FelBomb > Winds > DarkBindings > Corruption > Wound)
-  local color = nil
-  if self:HasDebuff(guid, AURA_FEL_BOMB) then
-    return
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_WINDS) then
-    return
-  elseif self:HasDebuff(guid, AURA_DARK_BINDINGS) then
-    return
-  elseif self:HasDebuff(guid, AURA_PHANTASMAL_WOUNDS) then
-    color = DebuffsDB.wounds.color
-  end
-
-  if color then
-    frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
-  else
-    frame.texture:SetVertexColor(1, 1, 1, 1)
-  end
-
-end
-
-function EyeOfAnzuAssist:UpdateRadianceOfAnzu(guid)
-	if not self.db.profile.radianceOfAnzu.show and not self.db.profile.eyeOfAnzu.showRadianceOfAnzu then return end
-
-  local unit = EIA:GetUnit(guid)
-  local role = UnitGroupRolesAssigned(unit)
-  local frame = self:GetPlayerFrame(guid, role)
-
-  if not frame then return end
-
-  local _, _, _, stack = UnitDebuff(unit, AURA_RADIANCE_OF_ANZU)
-
-  if stack and stack > 0 then
-    if self.db.profile.radianceOfAnzu.showIcon then
-      frame.radianceOfAnzuIcon:Show()
-    end
-    -- color
-    local color = nil
-    if stack < self.db.profile.radianceOfAnzu.stack.low.threshold then
-      color = self.db.profile.radianceOfAnzu.stack.low.color
-    elseif stack < self.db.profile.radianceOfAnzu.stack.medium.threshold then
-      color = self.db.profile.radianceOfAnzu.stack.medium.color
-    else
-      color = self.db.profile.radianceOfAnzu.stack.high.color
-    end
-
-    if self.db.profile.radianceOfAnzu.show then
-      frame.radianceOfAnzuStack:SetTextColor(color.r, color.g, color.b)
-      frame.radianceOfAnzuStack:Show()
-      frame.radianceOfAnzuStack:SetText(stack)
-    end
-
-    if self.db.profile.eyeOfAnzu.show and self.db.profile.eyeOfAnzu.showRadianceOfAnzu then
-      EyeOfAnzuFrame.stack:Show()
-      EyeOfAnzuFrame.stack:SetText(string.format("(%i)", stack))
-      EyeOfAnzuFrame.stack:SetTextColor(color.r, color.g, color.b)
-    end
-  else
-      frame.radianceOfAnzuStack:Hide()
-      frame.radianceOfAnzuIcon:Hide()
-      EyeOfAnzuFrame.stack:Hide()
-  end
-end
-
-
-
 
 -- **********************
 -- *** Event Handlers ***
@@ -837,38 +469,18 @@ function EyeOfAnzuAssist:HandleCombatLog(event, timestamp, message, _, sourceGUI
 		if message == "SPELL_AURA_APPLIED" or message  == "SPELL_AURA_REFRESH" or message == "SPELL_AURA_APPLIED_DOSE" then
 			local spellID, spellName = ...
 
-			if spellName == AURA_EYE_OF_ANZU then -- or spellID == 41635 test
+			if spellName == AURA_CHAMPION_OF_THE_LIGHT then -- or spellID == 41635 test
 				self:SetEyeOfAnzu(destGUID)
-			elseif spellName == AURA_PHANTASMAL_WINDS then -- spellID == 17
+			elseif spellName == AURA_HUDDLE_IN_TERROR then -- spellID == 17
 				self:AddWind(destGUID)
-			elseif spellName == AURA_FEL_BOMB then -- or spellID == 111759
-				self:SetFelBomb(destGUID)
-			elseif spellName == AURA_PHANTASMAL_WOUNDS then -- or spellID == 121557
-				self:AddWound(destGUID)
-			elseif spellName == AURA_DARK_BINDINGS then -- or spellID == 152118
-				self:AddDarkBinding(destGUID)
-			elseif spellName == AURA_PHANTASMAL_CORRUPTION then -- or spellID == 586
-				self:AddCorruption(destGUID)
-			elseif spellName == AURA_RADIANCE_OF_ANZU then -- or spellID == 155274
-				self:UpdateRadianceOfAnzu(destGUID)
 			end
 		elseif message == "SPELL_AURA_REMOVED" or message == "SPELL_AURA_REMOVED_DOSE" then
 			local spellID, spellName = ...
 
-			if spellName == AURA_EYE_OF_ANZU then -- or spellID == 41635 test pom
+			if spellName == AURA_CHAMPION_OF_THE_LIGHT then -- or spellID == 41635 test pom
 				self:SetEyeOfAnzu(nil)
-			elseif spellName == AURA_PHANTASMAL_WINDS then
+			elseif spellName == AURA_HUDDLE_IN_TERROR then
 				self:RemoveWind(destGUID)
-			elseif spellName == AURA_FEL_BOMB then
-				self:SetFelBomb(nil)
-			elseif spellName == AURA_PHANTASMAL_WOUNDS then
-				self:RemoveWound(destGUID)
-			elseif spellName == AURA_DARK_BINDINGS then
-				self:RemoveDarkBinding(destGUID)
-			elseif spellName == AURA_PHANTASMAL_CORRUPTION then
-				self:RemoveCorruption(destGUID)
-			elseif spellName == AURA_RADIANCE_OF_ANZU then
-				self:UpdateRadianceOfAnzu(destGUID)
 			end
 		end
 
@@ -884,26 +496,19 @@ function EyeOfAnzuAssist:HandleWipeActions()
     -- Clear all player frames
     for index, frame in pairs(HealerData.frames) do
       frame.texture:SetVertexColor(1, 1, 1, 1)
-      frame.radianceOfAnzuStack:SetText("")
     end
     for index, frame in pairs(TankData.frames) do
       frame.texture:SetVertexColor(1, 1, 1, 1)
-      frame.radianceOfAnzuStack:SetText("")
     end
     for index, frame in pairs(DpsData.frames) do
       frame.texture:SetVertexColor(1, 1, 1, 1)
-      frame.radianceOfAnzuStack:SetText("")
     end
     -- Clear the Eye of Anzu frame
     EyeOfAnzuFrame.name:SetText("")
     EyeOfAnzuFrame.role:SetText("")
 
     -- Clear all the debuff tables and variables
-    wipe(Winds)
-    wipe(Wounds)
-    wipe(Corruptions)
-    wipe(DarkBindings)
-    FelBomb = nil
+    wipe(Huddles)
     EyeOfAnzu = nil
 end
 
@@ -988,27 +593,22 @@ function EyeOfAnzuAssist:UpdateScaleFrames()
   for index, frame in pairs(HealerData.frames) do
     frame:SetPoint("TOP", HealerData.groupFrame, "TOP", 0, -30 * scale - index * PLAYER_FRAME_HEIGHT * scale)
     frame:SetSize(PLAYER_FRAME_WIDTH * scale, PLAYER_FRAME_HEIGHT * scale)
-    frame.radianceOfAnzuIcon:SetSize(PLAYER_FRAME_HEIGHT * scale, PLAYER_FRAME_HEIGHT * scale)
     frame.texture:SetAllPoints()
   end
 
   for index, frame in pairs(TankData.frames) do
     frame:SetPoint("TOP", TankData.groupFrame, "TOP", 0, -30 * scale - index * PLAYER_FRAME_HEIGHT * scale)
     frame:SetSize(PLAYER_FRAME_WIDTH * scale, PLAYER_FRAME_HEIGHT * scale)
-    frame.radianceOfAnzuIcon:SetSize(PLAYER_FRAME_HEIGHT * scale, PLAYER_FRAME_HEIGHT * scale)
   end
 
   for index, frame in pairs(DpsData.frames) do
     local yRatio = math.floor(index / 2)
     if (index % 2) == 0 then
       frame:SetPoint("TOP", DpsData.groupFrame, "TOP", 0,  -30 * scale - yRatio * DPS_PLAYER_FRAME_HEIGHT * scale)
-      frame.radianceOfAnzuIcon:SetPoint("RIGHT", frame, "LEFT", 0, 0)
     else
       frame:SetPoint("TOP", DpsData.groupFrame, "TOP", DPS_PLAYER_FRAME_WIDTH * scale  + 5 * scale, -30 * scale - yRatio * DPS_PLAYER_FRAME_HEIGHT * scale)
-      frame.radianceOfAnzuIcon:SetPoint("LEFT", frame, "RIGHT", 0, 0)
     end
     frame:SetSize(DPS_PLAYER_FRAME_WIDTH * scale, DPS_PLAYER_FRAME_HEIGHT * scale)
-    frame.radianceOfAnzuIcon:SetSize(PLAYER_FRAME_HEIGHT * scale, PLAYER_FRAME_HEIGHT * scale)
     frame.texture:SetAllPoints()
   end
 
@@ -1086,19 +686,6 @@ function EyeOfAnzuAssist:CreatePlayerFrame(categoryName, index)
   texture:SetVertexColor(1, 1, 1, 1)
   texture:SetAllPoints()
   frame.texture = texture
-
-  local radianceOfAnzuIcon = frame:CreateTexture(nil, "OVERLAY")
-  radianceOfAnzuIcon:SetTexture(AURA_RADIANCE_OF_ANZU)
-  radianceOfAnzuIcon:SetSize(PLAYER_FRAME_HEIGHT * scale, PLAYER_FRAME_HEIGHT * scale)
-  radianceOfAnzuIcon:Hide()
-  frame.radianceOfAnzuIcon = radianceOfAnzuIcon
-
-  local radianceOfAnzuStack = frame:CreateFontString(nil, "overlay", "GameFontNormal")
-  radianceOfAnzuStack:SetText("")
-  radianceOfAnzuStack:SetTextColor(1, 0, 0, 1)
-  radianceOfAnzuStack:SetAllPoints(radianceOfAnzuIcon)
-  radianceOfAnzuStack:Hide()
-  frame.radianceOfAnzuStack = radianceOfAnzuStack
 
   local button = CreateFrame("button", string.format("%s-%s", categoryName, index), frame, "SecureActionButtonTemplate")
   button:SetAttribute("type1", "macro")
@@ -1193,7 +780,7 @@ function EyeOfAnzuAssist:CreateEyeOfAnzuFrame()
   EyeOfAnzuFrame:SetSize(200 * scale, 50 * scale)
 
   local texture = EyeOfAnzuFrame:CreateTexture(nil, "OVERLAY")
-  texture:SetTexture(AURA_EYE_OF_ANZU_ICON)
+  texture:SetTexture(AURA_CHAMPION_OF_THE_LIGHT_ICON)
   texture:SetSize(24 * scale, 24 * scale)
   texture:SetPoint("LEFT", EyeOfAnzuFrame, "LEFT", 10 * scale, 0)
 
@@ -1386,7 +973,7 @@ the MEDIUM strata) :
           },
           eyeOfAnzu = {
             type = "group",
-            name = string.format("%s %s", EIA:GetIconText(AURA_EYE_OF_ANZU_ICON, 18, 18), AURA_EYE_OF_ANZU),
+            name = string.format("%s %s", EIA:GetIconText(AURA_CHAMPION_OF_THE_LIGHT_ICON, 18, 18), AURA_CHAMPION_OF_THE_LIGHT),
             inline = true,
             args ={
               show = {
@@ -1405,126 +992,6 @@ the MEDIUM strata) :
                   self.db.profile.eyeOfAnzu.show = value
                 end,
 
-              },
-              showRadianceOfAnzu = {
-                type = "toggle",
-                name = "Show radiance of Anzu",
-                desc = "Display the radiance of Anzu stack of the holder.",
-                order = 2,
-                get = function() return self.db.profile.eyeOfAnzu.showRadianceOfAnzu end,
-                set = function(_, value) self.db.profile.eyeOfAnzu.showRadianceOfAnzu = value end,
-
-              }
-
-            }
-          },
-          radianceOfAnzu = {
-            type = "group",
-            name = string.format("%s %s", EIA:GetIconText(AURA_RADIANCE_OF_ANZU_ICON, 18, 18), AURA_RADIANCE_OF_ANZU),
-						inline = true,
-            args = {
-              show = {
-								type = "toggle",
-								name = "Show",
-								desc = "Tell if the radiance of Anzu must be shown next to the player frames.",
-								order = 1,
-								get = function() return self.db.profile.radianceOfAnzu.show end,
-								set = function(_, value) self.db.profile.radianceOfAnzu.show = value end,
-
-							},
-              showIcon = {
-								type = "toggle",
-								name = "Show icon",
-								desc = "Show the radiance of Anzu icon. If not toggled, only the text is displayed.",
-								order = 2,
-								get = function() return self.db.profile.radianceOfAnzu.showIcon end,
-								set = function(_, value) self.db.profile.radianceOfAnzu.showIcon = value end,
-								disabled = function() return not self.db.profile.radianceOfAnzu.show end,
-
-							},
-              font = {
-								type = "group",
-								name = "Font Color Stacks",
-								disabled = function() return not self.db.profile.radianceOfAnzu.show end,
-                args = {
-                  colors = {
-                    type = "group",
-                    name = "",
-                    inline = true,
-                    args = {
-                      lowColor = {
-                        type = "color",
-                        name = "Low",
-                        desc = "The color used when the radiance of Anzu stack is low.",
-                        order = 1,
-                        get = function()
-                          local color = self.db.profile.radianceOfAnzu.stack.low.color
-                          return color.r, color.g, color.b
-                        end,
-                        set = function(_, r, g, b, a)
-                          local color = self.db.profile.radianceOfAnzu.stack.low.color
-                          color.r, color.g, color.b = r, g, b
-                        end,
-                      },
-                      mediumColor = {
-                        type = "color",
-                        name = "Medium",
-                        desc = "The color used when the radiance Of Anzu stack is medium",
-                        order = 2,
-                        get = function()
-                          local color = self.db.profile.radianceOfAnzu.stack.medium.color
-                          return color.r, color.g, color.b
-                        end,
-                        set = function(_, r, g, b, a)
-                          local color = self.db.profile.radianceOfAnzu.stack.medium.color
-                          color.r, color.g, color.b = r, g, b
-                        end,
-                      },
-                      HighColor = {
-                        type = "color",
-                        name = "High",
-                        desc = "The color used when the radiance of Anzu stack is neither low nor medium.",
-                        order = 3,
-                        get = function()
-                          local color = self.db.profile.radianceOfAnzu.stack.high.color
-                          return color.r, color.g, color.b
-                        end,
-                        set = function(_, r, g, b, a)
-                          local color = self.db.profile.radianceOfAnzu.stack.high.color
-                          color.r, color.g, color.b = r, g, b
-                        end,
-                      },
-                      thresholds = {
-                        type = "group",
-                        name = "",
-                        inline = true,
-                        args = {
-                          lowThreshold = {
-                            type = "range",
-                            name = "Low Threshold",
-                            desc = "The value below which a radiance of Anzu stack is considered low.",
-                            min = 0,
-                            max = 50,
-                            step = 1,
-                            get = function() return self.db.profile.radianceOfAnzu.stack.low.threshold end,
-                            set = function(_, value) self.db.profile.radianceOfAnzu.stack.low.threshold = value end,
-
-                          },
-                          mediumThreshold = {
-                            type = "range",
-                            name = "Medium Threshold",
-                            desc = "The value below which a radiance of Anzu stack is considered medium.",
-                            min  = 0,
-                            max = 50,
-                            step = 1,
-                            get = function() return self.db.profile.radianceOfAnzu.stack.medium.threshold end,
-                            set = function(_, value) self.db.profile.radianceOfAnzu.stack.medium.threshold = value end,
-                          }
-                        }
-                      }
-                    }
-                  },
-                }
               }
             }
           }
@@ -1537,14 +1004,14 @@ the MEDIUM strata) :
         args = {
           header = {
 						type = "description",
-						name = string.format("The debuff priority is :\n %s > %s > %s (mythic) > %s > %s",
-											AURA_FEL_BOMB, AURA_PHANTASMAL_WINDS, AURA_DARK_BINDINGS, AURA_PHANTASMAL_WOUNDS, AURA_PHANTASMAL_CORRUPTION),
+						name = string.format("The debuff priority is :\n %s",
+										AURA_HUDDLE_IN_TERROR),
 						order = 0,
 
 					},
 					winds = {
 						type = "group",
-						name = string.format("%s %s", EIA:GetIconText(AURA_PHANTASMAL_WINDS_ICON, 18, 18), AURA_PHANTASMAL_WINDS),
+						name = string.format("%s %s", EIA:GetIconText(AURA_HUDDLE_IN_TERROR_ICON, 18, 18), AURA_HUDDLE_IN_TERROR),
 						inline = true,
 						order = 1,
 						args = {
@@ -1552,8 +1019,8 @@ the MEDIUM strata) :
 								type = "toggle",
 								name = "Show debuff",
 								order = 1,
-								get = function() return DebuffsDB.winds.show end,
-								set = function(_, value) DebuffsDB.winds.show = value end,
+								get = function() return DebuffsDB.huddles.show end,
+								set = function(_, value) DebuffsDB.huddles.show = value end,
 
 							},
 							color = {
@@ -1561,133 +1028,15 @@ the MEDIUM strata) :
 								name = "Debuff color",
 								order = 2,
                 get = function()
-                    local color = DebuffsDB.winds.color
+                    local color = DebuffsDB.huddles.color
                     return color.r, color.g, color.b
                   end,
 								set = function(_, r, g, b, a)
-                  local color = DebuffsDB.winds.color
+                  local color = DebuffsDB.huddles.color
                   color.r, color.g, color.b = r, g, b
 								end,
 
-							},
-						}
-					},
-
-					wounds = {
-						type = "group",
-						name = string.format("%s %s", EIA:GetIconText(AURA_PHANTASMAL_WOUNDS_ICON, 18, 18), AURA_PHANTASMAL_WOUNDS),
-						inline = true,
-						order = 2,
-						args = {
-							show = {
-								type = "toggle",
-								name = "Show debuff",
-								order = 1,
-								get = function() return DebuffsDB.wounds.show end,
-								set = function(_, value) DebuffsDB.wounds.show = value end,
-
-							},
-							color = {
-								type = "color",
-								name = "Debuff color",
-								order = 2,
-                get = function()
-                    local color = DebuffsDB.wounds.color
-                    return color.r, color.g, color.b
-                  end,
-								set = function(_, r, g, b, a)
-                  local color = DebuffsDB.wounds.color
-                  color.r, color.g, color.b = r, g, b
-								end,
-
-							},
-
-						}
-					},
-					felBomb = {
-						type = "group",
-						name = string.format("%s %s", EIA:GetIconText(AURA_FEL_BOMB_ICON, 18, 18), AURA_FEL_BOMB),
-						inline = true,
-						order = 3,
-						args = {
-							show = {
-								type = "toggle",
-								name = "Show debuff",
-								order = 1,
-								get = function() return DebuffsDB.felBomb.show end,
-								set = function(_, value) DebuffsDB.felBomb.show = value end,
-
-							},
-							color = {
-								type = "color",
-								name = "Debuff color",
-								order = 2,
-								get = function()
-                    local color = DebuffsDB.felBomb.color
-                    return color.r, color.g, color.b
-                  end,
-								set = function(_, r, g, b, a)
-                  local color = DebuffsDB.felBomb.color
-                  color.r, color.g, color.b = r, g, b
-								end,
-							},
-						}
-					},
-					corruption = {
-						type = "group",
-						name = string.format("%s%s", EIA:GetIconText(AURA_PHANTASMAL_CORRUPTION_ICON, 18, 18), AURA_PHANTASMAL_CORRUPTION),
-						inline = true,
-						order = 4,
-						args = {
-							show = {
-								type = "toggle",
-								name = "Show debuff",
-								order = 1,
-								get = function() return DebuffsDB.corruption.show end,
-								set = function(_, value) DebuffsDB.corruption.show = value end,
-							},
-							color = {
-								type = "color",
-								name = "Debuff color",
-								order = 2,
-                get = function()
-                    local color = DebuffsDB.corruption.color
-                    return color.r, color.g, color.b
-                  end,
-								set = function(_, r, g, b, a)
-                  local color = DebuffsDB.corruption.color
-                  color.r, color.g, color.b = r, g, b
-								end,
-							},
-						}
-					},
-					darkBindings = {
-						type = "group",
-						name = string.format("%s%s", EIA:GetIconText(AURA_DARK_BINDINGS_ICON, 18, 18), AURA_DARK_BINDINGS),
-						inline = true,
-						order = 5,
-						args = {
-							show = {
-								type = "toggle",
-								name = "Show debuff",
-								order = 1,
-								get = function() return DebuffsDB.darkBindings.show end,
-								set = function(_, value) DebuffsDB.darkBindings.show = value end,
-							},
-							color = {
-								type = "color",
-								name = "Debuff color",
-								order = 2,
-                get = function()
-                    local color = DebuffsDB.darkBindings.color
-                    return color.r, color.g, color.b
-                  end,
-								set = function(_, r, g, b, a)
-                  local color = DebuffsDB.darkBindings.color
-                  color.r, color.g, color.b = r, g, b
-								end,
-
-							},
+							}
 						}
 					}
         }

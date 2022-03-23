@@ -26,18 +26,12 @@ EpsiIskarAssist.RevisionVersion = 0
 -- ********************
 -- *** Common Data ****
 -- ********************
-EpsiIskarAssist.IskarID = 90316 --  73101 (Test) - Iskar => 90316
-EpsiIskarAssist.IskarEncounterID = 1788
 
-EpsiIskarAssist.AuraEyeOfAnzuSpellID = 179202
-EpsiIskarAssist.AuraPhantasmalWindsSpellID = 181957
-EpsiIskarAssist.AuraPhantasmalWoundsSpellID = 182325
-EpsiIskarAssist.AuraPhantasmalFelBombSpellID = 179219
-EpsiIskarAssist.AuraFelBombSpellID = 181753
-EpsiIskarAssist.AuraPhantasmalCorruptionSpellID = 181824
-EpsiIskarAssist.AuraDarkBindingsSpellID = 185510
-EpsiIskarAssist.AuraRadianceOfAnzuSpellID = 185239
-EpsiIskarAssist.ShadowRiposteSpellID = 185345
+EpsiIskarAssist.ShaID = 60999
+EpsiIskarAssist.ShaEncounterID = 1431
+
+EpsiIskarAssist.AuraChampionOfTheLightSpellID = 120268
+EpsiIskarAssist.AuraHuddleInTerrorSpellID = 120629
 
 local Healers = {}
 local Tanks = {}
@@ -62,15 +56,12 @@ function EpsiIskarAssist:GetNumMember()
 
 		difficulty = GetRaidDifficultyID()
 
-		-- Raid Normal
-		if difficulty == 14 then
-			maxNumber = 30
-		-- Raid Heroic
-		elseif difficulty == 15 then
-			maxNumber = 30
-		-- Raid Mythic
-		elseif difficulty == 16 then
-			maxNumber = 20
+		-- Raid 10H
+		if difficulty == 5 then
+			maxNumber = 10
+		-- Raid 25H
+		elseif difficulty == 6 then
+			maxNumber = 25
 		else
 			maxNumber = 40
 		end
@@ -161,7 +152,7 @@ function EpsiIskarAssist:InEncounterCombat()
 end
 
 function EpsiIskarAssist:HandleEncounterStart(event, encounterID, encounterName, difficultyID, raidSize)
-	if encounterID == self.IskarEncounterID then
+	if encounterID == self.ShaEncounterID then
 		InEncounterCombat = true
 		self:SendMessage("EIA_ISKAR_ENCOUNTER_START", difficultyID, raidSize)
 	else
@@ -172,7 +163,7 @@ end
 function EpsiIskarAssist:HandleEncounterStop(event, encounterID, encounterName, difficultyID, raidSize, endStatus)
 	InEncounterCombat = false
 
-	if encounterID == self.IskarEncounterID then
+	if encounterID == self.ShaEncounterID then
 		if endStatus == 0 then
 			self:SendMessage("EIA_ISKAR_WIPE")
 		elseif endStatus == 1 then
@@ -184,7 +175,7 @@ end
 
 function EpsiIskarAssist:HandleTargetChanged()
 	local npcID = self:GetNpcIDFromUnit("target")
-	if tonumber(npcID) == self.IskarID and not UnitIsDead("target") then
+	if tonumber(npcID) == self.ShaID and not UnitIsDead("target") then
 			if UnitAffectingCombat("player") then
 					autoEnableAllModules = true
 			else
@@ -195,7 +186,7 @@ end
 
 function EpsiIskarAssist:HandleMouseoverChanged()
   local npcID = self:GetNpcIDFromUnit("mouseover")
-	if tonumber(npcID) == self.IskarID and not UnitIsDead("mouseover") then
+	if tonumber(npcID) == self.ShaID and not UnitIsDead("mouseover") then
 			if UnitAffectingCombat("player") then
 					autoEnableAllModules = true
 			else
