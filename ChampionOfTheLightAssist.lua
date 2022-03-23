@@ -1,7 +1,7 @@
-local _, EIA = ...
+local _, SIA = ...
 
-local EyeOfAnzuAssist = EIA:NewModule("EyeOfAnzuAssist")
-EIA:AutoEnableModuleOnBoss(EyeOfAnzuAssist, function() EyeOfAnzuAssist:ShowFrames() end)
+local ChampionOfTheLightAssist = SIA:NewModule("ChampionOfTheLightAssist")
+SIA:AutoEnableModuleOnBoss(ChampionOfTheLightAssist, function() ChampionOfTheLightAssist:ShowFrames() end)
 
 -- **************
 -- *** Frames ***
@@ -22,7 +22,7 @@ local needDisable = false
 -- *************
 -- *** Media ***
 -- *************
-local SKAM_BAR = [[Interface\Addons\EpsiIskarAssist\Media\skam_bar]]
+local SKAM_BAR = [[Interface\Addons\ShaOfIskarAssist\Media\skam_bar]]
 
 -- ********************
 -- *** Macro Format ***
@@ -51,8 +51,8 @@ local PreviousDpsCount = 0
 -- ****************************
 -- *** Localized spell name ***
 -- ****************************
-local AURA_CHAMPION_OF_THE_LIGHT, _, AURA_CHAMPION_OF_THE_LIGHT_ICON = GetSpellInfo(EIA.AuraChampionOfTheLightSpellID)
-local AURA_HUDDLE_IN_TERROR, _, AURA_HUDDLE_IN_TERROR_ICON = GetSpellInfo(EIA.AuraHuddleInTerrorSpellID)
+local AURA_CHAMPION_OF_THE_LIGHT, _, AURA_CHAMPION_OF_THE_LIGHT_ICON = GetSpellInfo(SIA.AuraChampionOfTheLightSpellID)
+local AURA_HUDDLE_IN_TERROR, _, AURA_HUDDLE_IN_TERROR_ICON = GetSpellInfo(SIA.AuraHuddleInTerrorSpellID)
 
 local DebuffsDB = nil
 
@@ -104,14 +104,14 @@ local function HandleFrameDragStop(frame)
   x = frame:GetLeft()
   y = frame:GetBottom()
 
-  EyeOfAnzuAssist.db.profile.xPos = x
-  EyeOfAnzuAssist.db.profile.yPos = y
+  ChampionOfTheLightAssist.db.profile.xPos = x
+  ChampionOfTheLightAssist.db.profile.yPos = y
 end
 
-EyeOfAnzuAssist.EnableOnIskar = true
-function EyeOfAnzuAssist:OnInitialize()
+ChampionOfTheLightAssist.EnableOnIskar = true
+function ChampionOfTheLightAssist:OnInitialize()
 
-  self.db = EIA.db:GetNamespace("EyeOfAnzuAssist", true) or EIA.db:RegisterNamespace("EyeOfAnzuAssist", defaults)
+  self.db = SIA.db:GetNamespace("ChampionOfTheLightAssist", true) or SIA.db:RegisterNamespace("ChampionOfTheLightAssist", defaults)
   self.EnableOnIskar = self.db.profile.showOnIskar
   scale = self.db.profile.scale
   DebuffsDB = self.db.profile.debuffs
@@ -121,21 +121,21 @@ function EyeOfAnzuAssist:OnInitialize()
   self:RegisterChatCommand("eia", "HandleChatCommands")
 
 
-  if not EIA.db.profile.modulesEnabled[self:GetName()] then
+  if not SIA.db.profile.modulesEnabled[self:GetName()] then
     self.EnableOnIskar = false
   end
 
-  if self.EnableOnIskar or not EIA.db.profile.modulesEnabled[self:GetName()] then
+  if self.EnableOnIskar or not SIA.db.profile.modulesEnabled[self:GetName()] then
     self:SetEnabledState(false)
   end
 end
 
-function EyeOfAnzuAssist:OnEnable()
+function ChampionOfTheLightAssist:OnEnable()
 
   self.EnableOnIskar = self.db.profile.showOnIskar
-  self:RegisterMessage("EIA_RAID_INFO_UPDATED", "HandleRaidInfoUpdate")
-  self:RegisterMessage("EIA_ISKAR_WIPE", "HandleWipeActions")
-  self:RegisterMessage("EIA_ISKAR_KILLED", "HandleKillActions")
+  self:RegisterMessage("SIA_RAID_INFO_UPDATED", "HandleRaidInfoUpdate")
+  self:RegisterMessage("SIA_ISKAR_WIPE", "HandleWipeActions")
+  self:RegisterMessage("SIA_ISKAR_KILLED", "HandleKillActions")
   self:RegisterEvent("PLAYER_REGEN_ENABLED", "HandleDelayedAction")
 
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "HandleCombatLog")
@@ -187,11 +187,11 @@ function EyeOfAnzuAssist:OnEnable()
 
 end
 
-function EyeOfAnzuAssist:OnDisable()
+function ChampionOfTheLightAssist:OnDisable()
 
-  self:UnregisterMessage("EIA_RAID_INFO_UPDATED")
-  self:UnregisterMessage("EIA_ISKAR_WIPE")
-  self:UnregisterMessage("EIA_ISKAR_KILLED")
+  self:UnregisterMessage("SIA_RAID_INFO_UPDATED")
+  self:UnregisterMessage("SIA_ISKAR_WIPE")
+  self:UnregisterMessage("SIA_ISKAR_KILLED")
   self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 
   self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -218,19 +218,19 @@ function EyeOfAnzuAssist:OnDisable()
 
 end
 
-function EyeOfAnzuAssist:LockFrames()
+function ChampionOfTheLightAssist:LockFrames()
   MainFrame:EnableMouse(false)
   MainFrame:SetMovable(false)
   self:Print("The raid frame has been locked")
 end
 
-function EyeOfAnzuAssist:UnlockFrames()
+function ChampionOfTheLightAssist:UnlockFrames()
   MainFrame:EnableMouse(true)
   MainFrame:SetMovable(true)
   self:Print("The raid frame has been unlocked")
 end
 
-function EyeOfAnzuAssist:HandleChatCommands(input)
+function ChampionOfTheLightAssist:HandleChatCommands(input)
   if input == "lock" then
     self:LockFrames()
     self.db.profile.lock = true
@@ -250,13 +250,13 @@ function EyeOfAnzuAssist:HandleChatCommands(input)
   end
 end
 
-function EyeOfAnzuAssist:EnableAndUpdateRangeTicker()
+function ChampionOfTheLightAssist:EnableAndUpdateRangeTicker()
 
   self:DisableRangeTicker()
-  Ticker = C_Timer.NewTicker(self.db.profile.rangeIndicator.updateFrequency, function() EyeOfAnzuAssist:UpdateRangePlayers() end)
+  Ticker = C_Timer.NewTicker(self.db.profile.rangeIndicator.updateFrequency, function() ChampionOfTheLightAssist:UpdateRangePlayers() end)
 end
 
-function EyeOfAnzuAssist:DisableRangeTicker()
+function ChampionOfTheLightAssist:DisableRangeTicker()
   if Ticker then
     Ticker:Cancel()
     Ticker = nil
@@ -266,19 +266,19 @@ end
 
 
 
-function EyeOfAnzuAssist:UpdateRoleFrame(role)
+function ChampionOfTheLightAssist:UpdateRoleFrame(role)
   local roleData = nil
   local rolePlayers = nil
   local currentRoleCount = 0
 
   if role == "HEALER" then
-    rolePlayers, currentRoleCount = EIA:GetHealers()
+    rolePlayers, currentRoleCount = SIA:GetHealers()
     roleData = HealerData
   elseif role == "TANK" then
-    rolePlayers, currentRoleCount = EIA:GetTanks()
+    rolePlayers, currentRoleCount = SIA:GetTanks()
     roleData = TankData
   elseif role == "DAMAGER" then
-    rolePlayers, currentRoleCount = EIA:GetDps()
+    rolePlayers, currentRoleCount = SIA:GetDps()
     roleData = DpsData
   end
 
@@ -321,7 +321,7 @@ function EyeOfAnzuAssist:UpdateRoleFrame(role)
   end
 
   for index, guid in pairs(rolePlayers) do
-     local unit = EIA:GetUnit(guid)
+     local unit = SIA:GetUnit(guid)
      local frame = roleData.frames[index - 1]
 
      self:UpdatePlayerFrame(frame, unit)
@@ -333,7 +333,7 @@ function EyeOfAnzuAssist:UpdateRoleFrame(role)
 
 end
 
-function EyeOfAnzuAssist:UpdateRangePlayer(frame, unit)
+function ChampionOfTheLightAssist:UpdateRangePlayer(frame, unit)
 
     if not unit then return end
 
@@ -344,32 +344,32 @@ function EyeOfAnzuAssist:UpdateRangePlayer(frame, unit)
     end
 end
 
-function EyeOfAnzuAssist:UpdateRangePlayers()
+function ChampionOfTheLightAssist:UpdateRangePlayers()
   --HealerData = { previousCount = 0, frames = {}, indexesFrame = {}, groupFrame = nil }
   --TankData = { previousCount = 0, frames = {}, indexesFrame = {}, groupFrame = nil }
   --DpsData = { previousCount = 0, frames = {}, indexesFrame = {}, groupFrame = nil }
   --HealerData.indexesFrame[guid]
 
   for guid, index in pairs(HealerData.indexesFrame) do
-      local unit = EIA:GetUnit(guid)
+      local unit = SIA:GetUnit(guid)
       local frame = HealerData.frames[index]
       self:UpdateRangePlayer(frame, unit)
   end
 
   for guid, index in pairs(TankData.indexesFrame) do
-      local unit = EIA:GetUnit(guid)
+      local unit = SIA:GetUnit(guid)
       local frame = TankData.frames[index]
       self:UpdateRangePlayer(frame, unit)
   end
 
   for guid, index in pairs(DpsData.indexesFrame) do
-      local unit = EIA:GetUnit(guid)
+      local unit = SIA:GetUnit(guid)
       local frame = DpsData.frames[index]
       self:UpdateRangePlayer(frame, unit)
   end
 end
 
-function EyeOfAnzuAssist:AddDebuff(guid, debuffName)
+function ChampionOfTheLightAssist:AddDebuff(guid, debuffName)
     if self:HasDebuff(guid, debuffName) then return end
 
     if debuffName == AURA_HUDDLE_IN_TERROR then
@@ -377,7 +377,7 @@ function EyeOfAnzuAssist:AddDebuff(guid, debuffName)
     end
 end
 
-function EyeOfAnzuAssist:RemoveDebuff(guid, debuffName)
+function ChampionOfTheLightAssist:RemoveDebuff(guid, debuffName)
     local hasDebuff, index = self:HasDebuff(guid, debuffName)
 
     if not hasDebuff then return end
@@ -387,7 +387,7 @@ function EyeOfAnzuAssist:RemoveDebuff(guid, debuffName)
     end
 end
 
-function EyeOfAnzuAssist:HasDebuff(guid, debuffName)
+function ChampionOfTheLightAssist:HasDebuff(guid, debuffName)
     if debuffName == AURA_HUDDLE_IN_TERROR then
   		for index, playerGUID in ipairs(Huddles) do
   			if guid == playerGUID then return true, index end
@@ -397,11 +397,11 @@ function EyeOfAnzuAssist:HasDebuff(guid, debuffName)
   	return false, nil
 end
 
-function EyeOfAnzuAssist:SetEyeOfAnzu(guid)
+function ChampionOfTheLightAssist:SetEyeOfAnzu(guid)
   if not guid and not EyeOfAnzu then return end
 
   if guid then
-    local unit = EIA:GetUnit(guid)
+    local unit = SIA:GetUnit(guid)
 
     local name = UnitName(unit)
     local role = UnitGroupRolesAssigned(unit)
@@ -411,7 +411,7 @@ function EyeOfAnzuAssist:SetEyeOfAnzu(guid)
 
     EyeOfAnzuFrame.name:SetText(string.format("|c%s%s|r", color.colorStr, name))
     if role then
-      EyeOfAnzuFrame.role:SetText(EIA:GetRoleIconText(role, 22 * scale, 22 * scale))
+      EyeOfAnzuFrame.role:SetText(SIA:GetRoleIconText(role, 22 * scale, 22 * scale))
     end
   else
     EyeOfAnzuFrame.name:SetText("")
@@ -421,12 +421,12 @@ function EyeOfAnzuAssist:SetEyeOfAnzu(guid)
   EyeOfAnzu = guid
 end
 
-function EyeOfAnzuAssist:AddWind(guid)
+function ChampionOfTheLightAssist:AddWind(guid)
   -- if the user doesn't want show this debuff, don't continue
 
 	if not DebuffsDB.huddles.show then return end
 
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
+  local role = UnitGroupRolesAssigned(SIA:GetUnit(guid))
   local frame = self:GetPlayerFrame(guid, role)
 
   if not frame then return end
@@ -440,11 +440,11 @@ function EyeOfAnzuAssist:AddWind(guid)
   end
 end
 
-function EyeOfAnzuAssist:RemoveWind(guid)
+function ChampionOfTheLightAssist:RemoveWind(guid)
   -- if the user doesn't want show this debuff, don't continue
   if not DebuffsDB.huddles.show then return end
 
-  local role = UnitGroupRolesAssigned(EIA:GetUnit(guid))
+  local role = UnitGroupRolesAssigned(SIA:GetUnit(guid))
   local frame = self:GetPlayerFrame(guid, role)
 
   if not frame then return end
@@ -457,7 +457,7 @@ end
 -- **********************
 -- *** Event Handlers ***
 -- **********************
-function EyeOfAnzuAssist:HandleCombatLog(event, timestamp, message, _, sourceGUID, sourceName, _, _, destGUID, destName, destFlags, destFlags2, ...)
+function ChampionOfTheLightAssist:HandleCombatLog(event, timestamp, message, _, sourceGUID, sourceName, _, _, destGUID, destName, destFlags, destFlags2, ...)
 	local isPlayer = bit.band(destFlags, COMBATLOG_OBJECT_TYPE_PLAYER) > 0
   local isFriendly = bit.band(destFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
 	 local isInRaid = bit.band(destFlags, COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE) > 0
@@ -490,7 +490,7 @@ function EyeOfAnzuAssist:HandleCombatLog(event, timestamp, message, _, sourceGUI
 	end
 end
 
-function EyeOfAnzuAssist:HandleWipeActions()
+function ChampionOfTheLightAssist:HandleWipeActions()
 
     -- Clear all player frames
     for index, frame in pairs(HealerData.frames) do
@@ -511,7 +511,7 @@ function EyeOfAnzuAssist:HandleWipeActions()
     EyeOfAnzu = nil
 end
 
-function EyeOfAnzuAssist:HandleKillActions()
+function ChampionOfTheLightAssist:HandleKillActions()
     if UnitAffectingCombat("player") then
       needDisable = true
     else
@@ -519,7 +519,7 @@ function EyeOfAnzuAssist:HandleKillActions()
     end
 end
 
-function EyeOfAnzuAssist:HandleRaidInfoUpdate()
+function ChampionOfTheLightAssist:HandleRaidInfoUpdate()
 
   if UnitAffectingCombat("player") then
     needUpdate = true
@@ -532,7 +532,7 @@ function EyeOfAnzuAssist:HandleRaidInfoUpdate()
 
 end
 
-function EyeOfAnzuAssist:HandleDelayedAction()
+function ChampionOfTheLightAssist:HandleDelayedAction()
   if needUpdate then
     self:HandleRaidInfoUpdate()
     needUpdate = false
@@ -552,7 +552,7 @@ end
 -- **********************
 -- *** Frames Methods ***
 -- **********************
-function EyeOfAnzuAssist:ShowFrames()
+function ChampionOfTheLightAssist:ShowFrames()
   if not self:IsEnabled() then
     self:Enable()
     MainFrame:Show()
@@ -562,14 +562,14 @@ function EyeOfAnzuAssist:ShowFrames()
   end
 end
 
-function EyeOfAnzuAssist:HideFrames()
+function ChampionOfTheLightAssist:HideFrames()
   if self:IsEnabled() then
     MainFrame:Hide()
     self:DisableRangeTicker()
   end
 end
 
-function EyeOfAnzuAssist:ToggleFrames()
+function ChampionOfTheLightAssist:ToggleFrames()
   if self:IsEnabled() then
     if MainFrame:IsShown() then
       MainFrame:Hide()
@@ -585,7 +585,7 @@ function EyeOfAnzuAssist:ToggleFrames()
   end
 end
 
-function EyeOfAnzuAssist:UpdateScaleFrames()
+function ChampionOfTheLightAssist:UpdateScaleFrames()
   MainFrame:SetSize(400 * scale, 400 * scale)
 
   -- Update the player frames scale
@@ -612,19 +612,19 @@ function EyeOfAnzuAssist:UpdateScaleFrames()
   end
 
   -- Update the parent role frame
-    local _, dpsCount = EIA:GetDps()
+    local _, dpsCount = SIA:GetDps()
     DpsData.groupFrame:SetSize(150 * scale, 45 * scale + PLAYER_FRAME_HEIGHT * dpsCount * scale)
-    DpsData.groupFrame.text:SetText(string.format("%s %s", EIA:GetRoleIconText("DAMAGER", 32 * scale, 32 * scale), "Dps"))
+    DpsData.groupFrame.text:SetText(string.format("%s %s", SIA:GetRoleIconText("DAMAGER", 32 * scale, 32 * scale), "Dps"))
     DpsData.groupFrame:SetPoint("TOPLEFT", 	TankData.groupFrame, "TOPRIGHT", 5 * scale, 0)
 
-    local _, healerCount = EIA:GetHealers()
+    local _, healerCount = SIA:GetHealers()
     HealerData.groupFrame:SetSize(100 * scale, 45 * scale  + PLAYER_FRAME_HEIGHT * healerCount * scale)
-    HealerData.groupFrame.text:SetText(string.format("%s %s", EIA:GetRoleIconText("HEALER", 32 * scale, 32 * scale), "Healers"))
+    HealerData.groupFrame.text:SetText(string.format("%s %s", SIA:GetRoleIconText("HEALER", 32 * scale, 32 * scale), "Healers"))
     HealerData.groupFrame:SetPoint("TOP", TankData.groupFrame, "BOTTOM", 0, -5 * scale)
 
-    local _, tankCount = EIA:GetTanks()
+    local _, tankCount = SIA:GetTanks()
     TankData.groupFrame:SetSize(100 * scale, 45 * scale  + PLAYER_FRAME_HEIGHT * tankCount * scale)
-    TankData.groupFrame.text:SetText(string.format("%s %s", EIA:GetRoleIconText("TANK", 32 * scale, 32 * scale), "Tanks"))
+    TankData.groupFrame.text:SetText(string.format("%s %s", SIA:GetRoleIconText("TANK", 32 * scale, 32 * scale), "Tanks"))
 
     -- Update the eye of Anzu
     EyeOfAnzuFrame:SetSize(200 * scale, 50 * scale)
@@ -637,7 +637,7 @@ function EyeOfAnzuAssist:UpdateScaleFrames()
 
 end
 
-function EyeOfAnzuAssist:GetPlayerFrame(guid, role)
+function ChampionOfTheLightAssist:GetPlayerFrame(guid, role)
 
   local frame = nil
 
@@ -651,7 +651,7 @@ function EyeOfAnzuAssist:GetPlayerFrame(guid, role)
   return frame
 end
 
-function EyeOfAnzuAssist:UpdatePlayerFrame(frame, unit)
+function ChampionOfTheLightAssist:UpdatePlayerFrame(frame, unit)
   frame:Show()
   frame.button:Show()
   frame.texture:Show()
@@ -674,7 +674,7 @@ function EyeOfAnzuAssist:UpdatePlayerFrame(frame, unit)
   frame.button:SetAttribute("unit", unit)
 end
 
-function EyeOfAnzuAssist:CreatePlayerFrame(categoryName, index)
+function ChampionOfTheLightAssist:CreatePlayerFrame(categoryName, index)
 
   local frame = CreateFrame("frame")
   frame:SetSize(PLAYER_FRAME_WIDTH * scale, PLAYER_FRAME_HEIGHT * scale)
@@ -725,12 +725,12 @@ function EyeOfAnzuAssist:CreatePlayerFrame(categoryName, index)
 end
 
 
-function EyeOfAnzuAssist:CreateTankCategoryFrame()
+function ChampionOfTheLightAssist:CreateTankCategoryFrame()
   TankData.groupFrame = CreateFrame("frame")
   TankData.groupFrame:SetSize(100 * scale, 45 * scale)
 
   local text = TankData.groupFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-  text:SetText(string.format("%s %s", EIA:GetRoleIconText("TANK", 32 * scale, 32 * scale), "Tanks"))
+  text:SetText(string.format("%s %s", SIA:GetRoleIconText("TANK", 32 * scale, 32 * scale), "Tanks"))
   text:SetPoint("TOP")
   TankData.groupFrame.text = text
 
@@ -740,13 +740,13 @@ function EyeOfAnzuAssist:CreateTankCategoryFrame()
   TankData.groupFrame:Show()
 end
 
-function EyeOfAnzuAssist:CreateHealerCategoryFrame()
+function ChampionOfTheLightAssist:CreateHealerCategoryFrame()
 
   HealerData.groupFrame = CreateFrame("frame")
   HealerData.groupFrame:SetSize(100 * scale, 45 * scale)
 
   local text = HealerData.groupFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-  text:SetText(string.format("%s %s", EIA:GetRoleIconText("HEALER", 32 * scale, 32 * scale), "Healers"))
+  text:SetText(string.format("%s %s", SIA:GetRoleIconText("HEALER", 32 * scale, 32 * scale), "Healers"))
   text:SetPoint("TOP")
 	HealerData.groupFrame.text = text
 
@@ -756,23 +756,22 @@ function EyeOfAnzuAssist:CreateHealerCategoryFrame()
   HealerData.groupFrame:Show()
 end
 
-function EyeOfAnzuAssist:CreateDpsCategoryFrame()
+function ChampionOfTheLightAssist:CreateDpsCategoryFrame()
     DpsData.groupFrame = CreateFrame("frame")
   	DpsData.groupFrame:SetSize(150 * scale, 45 * scale)
 
   	local text = DpsData.groupFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-  	text:SetText(string.format("%s %s", EIA:GetRoleIconText("DAMAGER", 32 * scale, 32 * scale), "Dps"))
+  	text:SetText(string.format("%s %s", SIA:GetRoleIconText("DAMAGER", 32 * scale, 32 * scale), "Dps"))
   	text:SetPoint("TOP")
   	DpsData.groupFrame.text = text
 
   	DpsData.groupFrame:SetParent(MainFrame)
   	DpsData.groupFrame:SetPoint("TOPLEFT", 	TankData.groupFrame, "TOPRIGHT", 5 * scale, 0)
-  	--DpsGroupFrame:SetPoint("TOP", EpsiIskarFrame, "TOP")
 
   	DpsData.groupFrame:Show()
 end
 
-function EyeOfAnzuAssist:CreateEyeOfAnzuFrame()
+function ChampionOfTheLightAssist:CreateEyeOfAnzuFrame()
   local show = true
 
   EyeOfAnzuFrame = CreateFrame("frame")
@@ -814,13 +813,13 @@ function EyeOfAnzuAssist:CreateEyeOfAnzuFrame()
 end
 
 
-function EyeOfAnzuAssist:GetOptions()
-   EyeOfAnzuAssist.options = {
+function ChampionOfTheLightAssist:GetOptions()
+   ChampionOfTheLightAssist.options = {
     type = "group",
     name = "Eye of Anzu Assist",
     order = 2,
     childGroups = "tab",
-    disabled = function() return not EIA.db.profile.modulesEnabled[self:GetName()] end,
+    disabled = function() return not SIA.db.profile.modulesEnabled[self:GetName()] end,
     args = {
       general = {
         type = "group",
@@ -972,7 +971,7 @@ the MEDIUM strata) :
           },
           eyeOfAnzu = {
             type = "group",
-            name = string.format("%s %s", EIA:GetIconText(AURA_CHAMPION_OF_THE_LIGHT_ICON, 18, 18), AURA_CHAMPION_OF_THE_LIGHT),
+            name = string.format("%s %s", SIA:GetIconText(AURA_CHAMPION_OF_THE_LIGHT_ICON, 18, 18), AURA_CHAMPION_OF_THE_LIGHT),
             inline = true,
             args ={
               show = {
@@ -1010,7 +1009,7 @@ the MEDIUM strata) :
 					},
 					huddles = {
 						type = "group",
-						name = string.format("%s %s", EIA:GetIconText(AURA_HUDDLE_IN_TERROR_ICON, 18, 18), AURA_HUDDLE_IN_TERROR),
+						name = string.format("%s %s", SIA:GetIconText(AURA_HUDDLE_IN_TERROR_ICON, 18, 18), AURA_HUDDLE_IN_TERROR),
 						inline = true,
 						order = 1,
 						args = {
@@ -1043,5 +1042,5 @@ the MEDIUM strata) :
     }
   }
 
-  return EyeOfAnzuAssist.options
+  return ChampionOfTheLightAssist.options
 end

@@ -1,11 +1,11 @@
-local _, EpsiIskarAssist = ...
-LibStub("AceAddon-3.0"):NewAddon(EpsiIskarAssist, "EpsiIskarAssist", "AceConsole-3.0", "AceEvent-3.0")
+local _, ShaOfIskarAssist = ...
+LibStub("AceAddon-3.0"):NewAddon(ShaOfIskarAssist, "ShaOfIskarAssist", "AceConsole-3.0", "AceEvent-3.0")
 
-EpsiIskarAssist:SetDefaultModuleLibraries("AceConsole-3.0", "AceEvent-3.0")
+ShaOfIskarAssist:SetDefaultModuleLibraries("AceConsole-3.0", "AceEvent-3.0")
 -- Local variable to speedup things
 local UnitGUID = UnitGUID
 
-local ADDON_NAME = "Epsi Iskar Assist"
+local ADDON_NAME = "Sha of Iskar Assist"
 local AceConfig3 = LibStub("AceConfig-3.0")
 local AceConfigDialog3 = LibStub("AceConfigDialog-3.0")
 
@@ -13,25 +13,25 @@ local AceConfigDialog3 = LibStub("AceConfigDialog-3.0")
 -- *** Addon Version
 -- *** 1.0.4 (Release)
 -- *****************
-EpsiIskarAssist.MajorVersion = 1
-EpsiIskarAssist.MinorVersion = 0
+ShaOfIskarAssist.MajorVersion = 1
+ShaOfIskarAssist.MinorVersion = 0
 -- Stage Number
 -- 0 : Alpha
 -- 1 : Beta
 -- 2 : Release candidate
 -- 3 : Final release
-EpsiIskarAssist.StageVersion = 4
-EpsiIskarAssist.RevisionVersion = 0
+ShaOfIskarAssist.StageVersion = 4
+ShaOfIskarAssist.RevisionVersion = 0
 
 -- ********************
 -- *** Common Data ****
 -- ********************
 
-EpsiIskarAssist.ShaID = 60999
-EpsiIskarAssist.ShaEncounterID = 1431
+ShaOfIskarAssist.ShaID = 60999
+ShaOfIskarAssist.ShaEncounterID = 1431
 
-EpsiIskarAssist.AuraChampionOfTheLightSpellID = 120268
-EpsiIskarAssist.AuraHuddleInTerrorSpellID = 120629
+ShaOfIskarAssist.AuraChampionOfTheLightSpellID = 120268
+ShaOfIskarAssist.AuraHuddleInTerrorSpellID = 120629
 
 local Healers = {}
 local Tanks = {}
@@ -51,7 +51,7 @@ local autoEnableAllModules = false
 -- ****************************
 -- *** Local Misc Functions ***
 -- ****************************
-function EpsiIskarAssist:GetNumMember()
+function ShaOfIskarAssist:GetNumMember()
 		local num = GetNumGroupMembers()
 
 		difficulty = GetRaidDifficultyID()
@@ -77,19 +77,19 @@ local defaults = {
 	profile = {
 		disabledAll = false,
 		modulesEnabled = {
-			EyeOfAnzuAssist = true,
+			ChampionOfTheLightAssist = true,
 		},
 	}
 }
 
-function EpsiIskarAssist:OnInitialize()
-	self.db = LibStub("AceDB-3.0"):New("EpsiIskarAssistDB", defaults)
+function ShaOfIskarAssist:OnInitialize()
+	self.db = LibStub("AceDB-3.0"):New("ShaOfIskarAssistDB", defaults)
 
 	self:SetupOptions()
 
 end
 
-function EpsiIskarAssist:OnEnable()
+function ShaOfIskarAssist:OnEnable()
   self:RegisterEvent("PARTY_MEMBERS_CHANGED", "UpdateRaidInfo")
   self:RegisterEvent("GROUP_ROSTER_UPDATE", "UpdateRaidInfo")
   self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateRaidInfo")
@@ -103,7 +103,7 @@ function EpsiIskarAssist:OnEnable()
 
 end
 
-function EpsiIskarAssist:OnDisable()
+function ShaOfIskarAssist:OnDisable()
   self:UnregisterEvent("PARTY_MEMBERS_CHANGED")
   self:UnregisterEvent("GROUP_ROSTER_UPDATE")
   self:UnregisterEvent("PLAYER_ENTERING_WORLD")
@@ -116,7 +116,7 @@ function EpsiIskarAssist:OnDisable()
 
 end
 
-function EpsiIskarAssist:UpdateRaidInfo()
+function ShaOfIskarAssist:UpdateRaidInfo()
 		self:WipeUnits()
 
     for i = 1, self:GetNumMember() do
@@ -131,10 +131,10 @@ function EpsiIskarAssist:UpdateRaidInfo()
 
     end
 
-		self:SendMessage("EIA_RAID_INFO_UPDATED")
+		self:SendMessage("SIA_RAID_INFO_UPDATED")
 end
 
-function EpsiIskarAssist:WipeUnits()
+function ShaOfIskarAssist:WipeUnits()
 		wipe(Members)
 
 		wipe(Healers)
@@ -147,33 +147,33 @@ function EpsiIskarAssist:WipeUnits()
 		DpsCount = 0
 end
 
-function EpsiIskarAssist:InEncounterCombat()
+function ShaOfIskarAssist:InEncounterCombat()
 	return InEncounterCombat
 end
 
-function EpsiIskarAssist:HandleEncounterStart(event, encounterID, encounterName, difficultyID, raidSize)
+function ShaOfIskarAssist:HandleEncounterStart(event, encounterID, encounterName, difficultyID, raidSize)
 	if encounterID == self.ShaEncounterID then
 		InEncounterCombat = true
-		self:SendMessage("EIA_ISKAR_ENCOUNTER_START", difficultyID, raidSize)
+		self:SendMessage("SIA_ISKAR_ENCOUNTER_START", difficultyID, raidSize)
 	else
 		InEncounterCombat = false
 	end
 end
 
-function EpsiIskarAssist:HandleEncounterStop(event, encounterID, encounterName, difficultyID, raidSize, endStatus)
+function ShaOfIskarAssist:HandleEncounterStop(event, encounterID, encounterName, difficultyID, raidSize, endStatus)
 	InEncounterCombat = false
 
 	if encounterID == self.ShaEncounterID then
 		if endStatus == 0 then
-			self:SendMessage("EIA_ISKAR_WIPE")
+			self:SendMessage("SIA_ISKAR_WIPE")
 		elseif endStatus == 1 then
-			self:SendMessage("EIA_ISKAR_KILLED")
+			self:SendMessage("SIA_ISKAR_KILLED")
 		end
-		self:SendMessage("EIA_ISKAR_ENCOUNTER_END", difficultyID, raidSize, endStatus)
+		self:SendMessage("SIA_ISKAR_ENCOUNTER_END", difficultyID, raidSize, endStatus)
 	end
 end
 
-function EpsiIskarAssist:HandleTargetChanged()
+function ShaOfIskarAssist:HandleTargetChanged()
 	local npcID = self:GetNpcIDFromUnit("target")
 	if tonumber(npcID) == self.ShaID and not UnitIsDead("target") then
 			if UnitAffectingCombat("player") then
@@ -184,7 +184,7 @@ function EpsiIskarAssist:HandleTargetChanged()
 	end
 end
 
-function EpsiIskarAssist:HandleMouseoverChanged()
+function ShaOfIskarAssist:HandleMouseoverChanged()
   local npcID = self:GetNpcIDFromUnit("mouseover")
 	if tonumber(npcID) == self.ShaID and not UnitIsDead("mouseover") then
 			if UnitAffectingCombat("player") then
@@ -195,7 +195,7 @@ function EpsiIskarAssist:HandleMouseoverChanged()
 	end
 end
 
-function EpsiIskarAssist:AutoEnableAllModules()
+function ShaOfIskarAssist:AutoEnableAllModules()
 	for module, func in pairs(ModulesAutoEnabled) do
 				if module.EnableOnIskar == nil or module.EnableOnIskar == true then
 						module:Enable()
@@ -204,7 +204,7 @@ function EpsiIskarAssist:AutoEnableAllModules()
 	end
 end
 
-function EpsiIskarAssist:HandleDelayedAction()
+function ShaOfIskarAssist:HandleDelayedAction()
 	if autoEnableAllModules then
 			self:AutoEnableAllModules()
 			autoEnableAllModules = false
@@ -212,7 +212,7 @@ function EpsiIskarAssist:HandleDelayedAction()
 end
 
 
-function EpsiIskarAssist:AddUnit(unit, guid, role)
+function ShaOfIskarAssist:AddUnit(unit, guid, role)
   if role == "HEALER" then
     self:AddHealer(unit, guid)
   elseif role == "TANK" then
@@ -222,43 +222,43 @@ function EpsiIskarAssist:AddUnit(unit, guid, role)
   end
 end
 
-function EpsiIskarAssist:AddHealer(unit, guid)
+function ShaOfIskarAssist:AddHealer(unit, guid)
   Members[guid] = unit
   tinsert(Healers, guid)
 	HealerCount = HealerCount + 1
 end
 
-function EpsiIskarAssist:AddTank(unit, guid)
+function ShaOfIskarAssist:AddTank(unit, guid)
   Members[guid] = unit
   tinsert(Tanks, guid)
 	TankCount = TankCount + 1
 end
 
-function EpsiIskarAssist:AddDps(unit, guid)
+function ShaOfIskarAssist:AddDps(unit, guid)
   Members[guid] = unit
   tinsert(Dps, guid)
 	DpsCount = DpsCount + 1
 end
 
-function EpsiIskarAssist:GetHealers()
+function ShaOfIskarAssist:GetHealers()
 	return Healers, HealerCount
 end
 
-function EpsiIskarAssist:GetTanks()
+function ShaOfIskarAssist:GetTanks()
 	return Tanks, TankCount
 end
 
-function EpsiIskarAssist:GetDps()
+function ShaOfIskarAssist:GetDps()
 	return Dps, DpsCount
 end
 
 
-function EpsiIskarAssist:GetUnit(guid)
+function ShaOfIskarAssist:GetUnit(guid)
   return Members[guid]
 end
 
 
-function EpsiIskarAssist:GetVersionString()
+function ShaOfIskarAssist:GetVersionString()
 	local stage = ""
 	if self.StageVersion == 0 then
 		stage = "Alpha"
@@ -275,7 +275,7 @@ function EpsiIskarAssist:GetVersionString()
 	return version
 end
 
-function EpsiIskarAssist:GetNpcID(guid)
+function ShaOfIskarAssist:GetNpcID(guid)
 	if not guid then return -1 end
 
 	local _, _, _, _, _, npcID, _ = strsplit("-", guid)
@@ -284,7 +284,7 @@ function EpsiIskarAssist:GetNpcID(guid)
 end
 
 
-function EpsiIskarAssist:GetNpcIDFromUnit(unit)
+function ShaOfIskarAssist:GetNpcIDFromUnit(unit)
 	if not unit then return -1 end
 
 	local guid = UnitGUID(unit)
@@ -292,7 +292,7 @@ function EpsiIskarAssist:GetNpcIDFromUnit(unit)
 	return self:GetNpcID(guid)
 end
 
-function EpsiIskarAssist:GetIconText(icon, width, height)
+function ShaOfIskarAssist:GetIconText(icon, width, height)
 	if not icon then return "" end
 
 	if not width or not height then
@@ -304,7 +304,7 @@ function EpsiIskarAssist:GetIconText(icon, width, height)
 	return string.format("|T%s:%i:%i|t", icon, width, height)
 end
 
-function EpsiIskarAssist:GetRoleIconText(role, width, height)
+function ShaOfIskarAssist:GetRoleIconText(role, width, height)
   if not height or not width then
     height = 32
     width = 32
@@ -321,7 +321,7 @@ function EpsiIskarAssist:GetRoleIconText(role, width, height)
     end
 end
 
-function EpsiIskarAssist:GetClassColorText(text, class)
+function ShaOfIskarAssist:GetClassColorText(text, class)
 
 	if not class or not text then return nil end
 
@@ -329,17 +329,17 @@ function EpsiIskarAssist:GetClassColorText(text, class)
 	return string.format("|c%s%s|r", color.colorStr, text)
 end
 
-function EpsiIskarAssist:AutoEnableModuleOnBoss(module, func)
+function ShaOfIskarAssist:AutoEnableModuleOnBoss(module, func)
 	ModulesAutoEnabled[module] = func
 end
 
-function EpsiIskarAssist:GenerateModuleOptions()
+function ShaOfIskarAssist:GenerateModuleOptions()
 	for name, module in self:IterateModules() do
 			if module.GetOptions then
-					AceConfig3:RegisterOptionsTable("EIA" .. ":" .. name, module:GetOptions())
-					AceConfigDialog3:AddToBlizOptions("EIA" .. ":" .. name, name, "EpsiIskarAssist")
+					AceConfig3:RegisterOptionsTable("SIA" .. ":" .. name, module:GetOptions())
+					AceConfigDialog3:AddToBlizOptions("SIA" .. ":" .. name, name, "ShaOfIskarAssist")
 
-					local mlopt = EpsiIskarAssist.options.args.modulesManagement.args.modules.args
+					local mlopt = ShaOfIskarAssist.options.args.modulesManagement.args.modules.args
 					mlopt[name] = {
 						type = "select",
 						name = name,
@@ -372,10 +372,10 @@ function EpsiIskarAssist:GenerateModuleOptions()
 	end
 end
 
-function EpsiIskarAssist:GenerateOptions()
+function ShaOfIskarAssist:GenerateOptions()
 
 
-	EpsiIskarAssist.options = {
+	ShaOfIskarAssist.options = {
 		type = "group",
 		childGroups = "tab",
 		args = {
@@ -386,7 +386,7 @@ function EpsiIskarAssist:GenerateOptions()
 					disabledAll = {
 						type = "toggle",
 						name = "Disable All",
-						desc = "Disable Epsi Iskar Assist and all its modules.",
+						desc = "Disable Sha of Iskar Assist and all its modules.",
 						order = 1,
 						descStyle = "inline",
 						get = function() return self.db.profile.disabledAll end,
@@ -415,19 +415,19 @@ function EpsiIskarAssist:GenerateOptions()
 	}
 end
 
-function EpsiIskarAssist:GetOptions()
-	if not EpsiIskarAssist.options then
+function ShaOfIskarAssist:GetOptions()
+	if not ShaOfIskarAssist.options then
 		self:GenerateOptions()
 	end
-	return EpsiIskarAssist.options
+	return ShaOfIskarAssist.options
 end
 
-function EpsiIskarAssist:SetupOptions()
-	AceConfig3:RegisterOptionsTable("EpsiIskarAssist", self:GetOptions())
-	AceConfigDialog3:AddToBlizOptions("EpsiIskarAssist", "EpsiIskarAssist")
+function ShaOfIskarAssist:SetupOptions()
+	AceConfig3:RegisterOptionsTable("ShaOfIskarAssist", self:GetOptions())
+	AceConfigDialog3:AddToBlizOptions("ShaOfIskarAssist", "ShaOfIskarAssist")
 	self:GenerateModuleOptions()
 
-	LibStub("LibAboutPanel").new("EpsiIskarAssist", "EpsiIskarAssist")
+	LibStub("LibAboutPanel").new("ShaOfIskarAssist", "ShaOfIskarAssist")
 
 
 end

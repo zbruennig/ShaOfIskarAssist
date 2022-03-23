@@ -1,6 +1,6 @@
 ## Interface: 70000
-## Title: Epsi Iskar Assist
-## Notes: Iskar Assistant
+## Title: Sha of Iskar Assist
+## Notes: Heroic Sha of Fear Assistant
 ## Author: Vivacity and Evil
 ## X-Author-Server: stormforge.gg
 ## X-Author-Faction: Horde
@@ -10,14 +10,10 @@
 ## X-Localizations: enUS
 ## X-Category: Boss Encounters
 ## X-Website: https://github.com/zbruennig/ShaOfIskarAssist
-## SavedVariables: EpsiIskarAssistDB
+## SavedVariables: ShaOfIskarAssistDB
 ## OptionalDeps: Ace3
-## X-Curse-Packaged-Version: r20160722150824
-## X-Curse-Project-Name: Epsi Iskar Assist
-## X-Curse-Project-ID: epsi-iskar-assist
-## X-Curse-Repository-ID: wow/epsi-iskar-assist/mainline
 
 embeds.xml
 
-EpsiIskarAssist.lua
-EyeOfAnzuAssist.lua
+ShaOfIskarAssist.lua
+ChampionOfTheLightAssist.lua
