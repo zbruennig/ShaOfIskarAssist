@@ -2,7 +2,7 @@
 ## Title: Sha of Iskar Assist
 ## Notes: Heroic Sha of Fear Assistant
 ## Author: Vivacity
-## X-Author-Server: stormforge.gg
+## X-Author-Server: Mistblade
 ## X-Author-Faction: Horde
 ## X-License: BSD
 ## Version: 1.0.5 (Release)

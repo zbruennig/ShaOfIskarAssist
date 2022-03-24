@@ -27,7 +27,7 @@ local SKAM_BAR = [[Interface\Addons\ShaOfIskarAssist\Media\skam_bar]]
 -- ********************
 -- *** Macro Format ***
 -- ********************
-local MacroEyeOfAnzu = "/target %s\n/run SendChatMessage('Ball to '..UnitName(%s), 'YELL')\n/click ExtraActionButton1\n/targetlasttarget"
+local MacroEyeOfAnzu = "/target %s\n/run if UnitAura('player', 'Champion of the Light') then SendChatMessage('Ball to '..UnitName(%s), 'YELL') end\n/click ExtraActionButton1\n/targetlasttarget"
 
 -- ************
 -- *** Data ***
