@@ -29,6 +29,7 @@ ShaOfIskarAssist.RevisionVersion = 0
 
 ShaOfIskarAssist.ShaID = 60999
 ShaOfIskarAssist.ShaEncounterID = 1431
+ShaOfIskarAssist.ShaSubZone = "Dread Expanse"
 
 ShaOfIskarAssist.AuraChampionOfTheLightSpellID = 120268
 ShaOfIskarAssist.AuraHuddleInTerrorSpellID = 120629
@@ -175,7 +176,7 @@ end
 
 function ShaOfIskarAssist:HandleTargetChanged()
 	local npcID = self:GetNpcIDFromUnit("target")
-	if tonumber(npcID) == self.ShaID and not UnitIsDead("target") then
+	if tonumber(npcID) == self.ShaID and not UnitIsDead("target") and GetSubZoneText() == self.ShaSubZone then
 			if UnitAffectingCombat("player") then
 					autoEnableAllModules = true
 			else
@@ -186,7 +187,7 @@ end
 
 function ShaOfIskarAssist:HandleMouseoverChanged()
   local npcID = self:GetNpcIDFromUnit("mouseover")
-	if tonumber(npcID) == self.ShaID and not UnitIsDead("mouseover") then
+	if tonumber(npcID) == self.ShaID and not UnitIsDead("mouseover") and GetSubZoneText() == self.ShaSubZone then
 			if UnitAffectingCombat("player") then
 					autoEnableAllModules = true
 			else
@@ -278,7 +279,9 @@ end
 function ShaOfIskarAssist:GetNpcID(guid)
 	if not guid then return -1 end
 
-	local _, _, _, _, _, npcID, _ = strsplit("-", guid)
+	-- local _, _, _, _, _, npcID, _ = strsplit("-", guid)
+	local hexNumber = strsub(guid, 7, 10)
+	npcID = tonumber(hexNumber, 16)
 
 	return npcID
 end

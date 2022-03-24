@@ -119,7 +119,8 @@ function ChampionOfTheLightAssist:OnInitialize()
 
   self:RegisterChatCommand("iskar", "HandleChatCommands")
   self:RegisterChatCommand("eia", "HandleChatCommands")
-
+  self:RegisterChatCommand("sha", "HandleChatCommands")
+  self:RegisterChatCommand("sia", "HandleChatCommands")
 
   if not SIA.db.profile.modulesEnabled[self:GetName()] then
     self.EnableOnIskar = false
@@ -816,7 +817,7 @@ end
 function ChampionOfTheLightAssist:GetOptions()
    ChampionOfTheLightAssist.options = {
     type = "group",
-    name = "Eye of Anzu Assist",
+    name = "Champion of the Light Assist",
     order = 2,
     childGroups = "tab",
     disabled = function() return not SIA.db.profile.modulesEnabled[self:GetName()] end,
@@ -828,8 +829,8 @@ function ChampionOfTheLightAssist:GetOptions()
         args = {
           enable = {
             type = "toggle",
-            name = "Show on Iskar",
-            desc = "Show automacaly when Iskar is targeted or you have him on mouseover.",
+            name = "Show on Sha of Fear",
+            desc = "Show automacaly when Sha of Fear is targeted or you have him on mouseover.",
             descStyle = "inline",
             order = 1,
             get = function() return self.db.profile.showOnIskar end,
