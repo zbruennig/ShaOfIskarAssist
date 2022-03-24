@@ -1,7 +1,7 @@
 ## Interface: 70000
 ## Title: Sha of Iskar Assist
 ## Notes: Heroic Sha of Fear Assistant
-## Author: Vivacity and Evil
+## Author: Vivacity
 ## X-Author-Server: stormforge.gg
 ## X-Author-Faction: Horde
 ## X-License: BSD

@@ -829,8 +829,8 @@ function ChampionOfTheLightAssist:GetOptions()
         args = {
           enable = {
             type = "toggle",
-            name = "Show on Sha of Fear",
-            desc = "Show automacaly when Sha of Fear is targeted or you have him on mouseover.",
+            name = "Show on Dread Expanse",
+            desc = "Show automacaly when Sha of Fear is targeted in the Dread Expanse or you have him on mouseover.",
             descStyle = "inline",
             order = 1,
             get = function() return self.db.profile.showOnIskar end,
