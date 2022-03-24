@@ -27,7 +27,7 @@ local SKAM_BAR = [[Interface\Addons\ShaOfIskarAssist\Media\skam_bar]]
 -- ********************
 -- *** Macro Format ***
 -- ********************
-local MacroEyeOfAnzu = "/target %s\n/run if UnitAura('player', 'Champion of the Light') then SendChatMessage('Ball to '..UnitName(%s), 'YELL') end\n/click ExtraActionButton1\n/targetlasttarget"
+local MacroEyeOfAnzu = "/tar %s\n/run if UnitAura('player', 'Champion of the Light') and UnitInRange(%s) then SendChatMessage('Ball to '..UnitName(%s), 'YELL') end\n/cancelaura Ice Block\n/stopcasting\n/stopcasting\n/click ExtraActionButton1\n/targetlasttarget"
 
 -- ************
 -- *** Data ***
@@ -671,7 +671,7 @@ function ChampionOfTheLightAssist:UpdatePlayerFrame(frame, unit)
 
   frame.name:SetTextColor(color.r, color.g, color.b, 1)
 
-  frame.button:SetAttribute("macrotext", string.format(MacroEyeOfAnzu, unit, '"'..unit..'"'))
+  frame.button:SetAttribute("macrotext", string.format(MacroEyeOfAnzu, unit, '"'..unit..'"', '"'..unit..'"'))
   frame.button:SetAttribute("unit", unit)
 end
 
