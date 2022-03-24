@@ -696,19 +696,19 @@ function ChampionOfTheLightAssist:CreatePlayerFrame(categoryName, index)
 
   -- for heal
   if MyClass == "PRIEST" then
-    local spellName = GetSpellInfo(527)
+    local spellName = GetSpellInfo(2061) -- Flash Heal
     button:SetAttribute("spell2", spellName)
   elseif MyClass == "PALADIN" then
-    local spellName = GetSpellInfo(4987)
+    local spellName = GetSpellInfo(19750) -- Flash of Light
     button:SetAttribute("spell2", spellName)
   elseif MyClass == "MONK" then
-    local spellName = GetSpellInfo(115450)
+    local spellName = GetSpellInfo(116694) -- Surging Mist
     button:SetAttribute("spell2", spellName)
   elseif MyClass == "SHAMAN" then
-    local spellName = GetSpellInfo(77130)
+    local spellName = GetSpellInfo(8004) -- Healing Surge
     button:SetAttribute("spell2", spellName)
   elseif MyClass == "DRUID" then
-    local spellName = GetSpellInfo(88423)
+    local spellName = GetSpellInfo(8936) -- Regrowth
     button:SetAttribute("spell2", spellName)
   end
 
