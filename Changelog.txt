@@ -1,5 +1,7 @@
 ===== ** 1.0.5 ** =====
-  * Re-implement and rename the addon for Heroic Sha of Fear
+  * Re-implement and rename the addon for Heroic Sha of Fear and MoP API
+  * Add an option to show all raid members (enabled by default)
+  * Add help slash command
 
 ===== ** 1.0.4 ** =====
   * Update the toc version for 7.0

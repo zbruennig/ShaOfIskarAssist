@@ -1,4 +1,4 @@
-## Interface: 70000
+## Interface: 50400
 ## Title: Sha of Iskar Assist
 ## Notes: Heroic Sha of Fear Assistant
 ## Author: Vivacity

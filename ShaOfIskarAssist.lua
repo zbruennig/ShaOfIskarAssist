@@ -54,14 +54,17 @@ local autoEnableAllModules = false
 -- ****************************
 function ShaOfIskarAssist:GetNumMember()
 		local num = GetNumGroupMembers()
+		if self.db.profile.showAllRaidMembers then
+			return num
+		end
 
 		difficulty = GetRaidDifficultyID()
 
-		-- Raid 10H
-		if difficulty == 5 then
+		-- Raid 10, 10H
+		if difficulty == 3 or difficulty == 5 then
 			maxNumber = 10
-		-- Raid 25H
-		elseif difficulty == 6 then
+		-- Raid 25, 25H
+		elseif difficulty == 4 or difficulty == 6 then
 			maxNumber = 25
 		else
 			maxNumber = 40
@@ -77,6 +80,7 @@ end
 local defaults = {
 	profile = {
 		disabledAll = false,
+		showAllRaidMembers = true,
 		modulesEnabled = {
 			ChampionOfTheLightAssist = true,
 		},
@@ -391,7 +395,7 @@ function ShaOfIskarAssist:GenerateOptions()
 						name = "Disable All",
 						desc = "Disable Sha of Iskar Assist and all its modules.",
 						order = 1,
-						descStyle = "inline",
+						descStyle = "tooltip",
 						get = function() return self.db.profile.disabledAll end,
 						set = function(_, disabledAll)
 								if not disabledAll then
@@ -402,10 +406,22 @@ function ShaOfIskarAssist:GenerateOptions()
 								self.db.profile.disabledAll = disabledAll
 						end,
 					},
+					showAllRaidMembers = {
+						type = "toggle",
+						name = "Show Entire Raid",
+						desc = "Display all raid members regardless of instance size. Useful if your guild keeps benched players in the raid group.",
+						order = 2,
+						descStyle = "tooltip",
+						get = function() return self.db.profile.showAllRaidMembers end,
+						set = function(_, showAllRaidMembers)
+							self.db.profile.showAllRaidMembers = showAllRaidMembers
+							self:UpdateRaidInfo()
+						end,
+					},
 					modules = {
 						type = "group",
 						name = "",
-						order = 2,
+						order = 3,
 						inline = true,
 						disabled = function() return self.db.profile.disabledAll end,
 						args = {

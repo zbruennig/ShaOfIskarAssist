@@ -66,8 +66,8 @@ local defaults = {
     frameStrata = "HIGH",
     rangeIndicator = {
       enable = true,
-      alpha = 0.5,
-      updateFrequency = 0.5,
+      alpha = 0.3,
+      updateFrequency = 0.25,
     },
     font = {
       color = {
@@ -228,10 +228,11 @@ end
 function ChampionOfTheLightAssist:UnlockFrames()
   MainFrame:EnableMouse(true)
   MainFrame:SetMovable(true)
-  self:Print("The raid frame has been unlocked")
+  self:Print("The raid frame has been unlocked\nHint: Drag on the role icons")
 end
 
-function ChampionOfTheLightAssist:HandleChatCommands(input)
+function ChampionOfTheLightAssist:HandleChatCommands(rawInput)
+  input = string.lower(rawInput)
   if input == "lock" then
     self:LockFrames()
     self.db.profile.lock = true
@@ -243,11 +244,15 @@ function ChampionOfTheLightAssist:HandleChatCommands(input)
   elseif input == "hide" then
     self:HideFrames()
   elseif input == "reload" or input == "refresh" then
+    self:ShowFrames()
     self:HandleRaidInfoUpdate()
     self:Print("The raid frame has been reloaded")
   elseif input == "clear" then
+    self:ShowFrames()
     self:HandleWipeActions() -- clear all the debuffs and reset the player frame color
     self:Print("The raid frame has been cleared")
+  else
+    self:Print("\nValid arguments:\nshow - Display the frame.\nhide - Hide the frame.\nlock - Lock the frame in place.\nunlock - Unlock the frame for moving.\nreload - Reload the frame.\nclear - Clear all debuffs. Use this if it does not reset after a wipe.")
   end
 end
 
@@ -829,9 +834,9 @@ function ChampionOfTheLightAssist:GetOptions()
         args = {
           enable = {
             type = "toggle",
-            name = "Show on Dread Expanse",
-            desc = "Show automacaly when Sha of Fear is targeted in the Dread Expanse or you have him on mouseover.",
-            descStyle = "inline",
+            name = "Show on Phase 2",
+            desc = "Show automacaly when Sha of Fear is targeted or moused over while in the Dread Expanse.",
+            descStyle = "tooltip",
             order = 1,
             get = function() return self.db.profile.showOnIskar end,
             set = function(_, showOnIskar)
@@ -1003,7 +1008,7 @@ the MEDIUM strata) :
         args = {
           header = {
 						type = "description",
-						name = string.format("The debuff priority is :\n %s",
+						name = string.format("The debuff priority is : %s",
 										AURA_HUDDLE_IN_TERROR),
 						order = 0,
 
