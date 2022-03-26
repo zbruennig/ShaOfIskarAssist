@@ -835,7 +835,7 @@ function ChampionOfTheLightAssist:GetOptions()
           enable = {
             type = "toggle",
             name = "Show on Phase 2",
-            desc = "Show automacaly when Sha of Fear is targeted or moused over while in the Dread Expanse.",
+            desc = "Show automatically when entering the Dread Expanse.",
             descStyle = "tooltip",
             order = 1,
             get = function() return self.db.profile.showOnIskar end,

@@ -104,8 +104,8 @@ function ShaOfIskarAssist:OnEnable()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", "HandleTargetChanged")
 	self:RegisterEvent("UPDATE_MOUSEOVER_UNIT", "HandleMouseoverChanged")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "HandleDelayedAction")
-
-
+	self:RegisterEvent("ZONE_CHANGED", "HandleSubZoneChanged")
+	self:RegisterEvent("ZONE_CHANGED_INDOORS", "HandleSubZoneChanged")
 end
 
 function ShaOfIskarAssist:OnDisable()
@@ -118,7 +118,8 @@ function ShaOfIskarAssist:OnDisable()
 	self:UnregisterEvent("PLAYER_TARGET_CHANGED")
 	self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-
+	self:UnregisterEvent("ZONE_CHANGED")
+	self:UnregisterEvent("ZONE_CHANGED_INDOORS")
 end
 
 function ShaOfIskarAssist:UpdateRaidInfo()
@@ -180,7 +181,7 @@ end
 
 function ShaOfIskarAssist:HandleTargetChanged()
 	local npcID = self:GetNpcIDFromUnit("target")
-	if tonumber(npcID) == self.ShaID and not UnitIsDead("target") and GetSubZoneText() == self.ShaSubZone then
+	if GetSubZoneText() == self.ShaSubZone and tonumber(npcID) == self.ShaID and not UnitIsDead("target") and not self.db.profile.disabledAll then
 			if UnitAffectingCombat("player") then
 					autoEnableAllModules = true
 			else
@@ -191,12 +192,22 @@ end
 
 function ShaOfIskarAssist:HandleMouseoverChanged()
   local npcID = self:GetNpcIDFromUnit("mouseover")
-	if tonumber(npcID) == self.ShaID and not UnitIsDead("mouseover") and GetSubZoneText() == self.ShaSubZone then
+	if GetSubZoneText() == self.ShaSubZone and tonumber(npcID) == self.ShaID and not UnitIsDead("mouseover") and not self.db.profile.disabledAll then
 			if UnitAffectingCombat("player") then
 					autoEnableAllModules = true
 			else
 					self:AutoEnableAllModules()
 			end
+	end
+end
+
+function ShaOfIskarAssist:HandleSubZoneChanged()
+	if GetSubZoneText() == self.ShaSubZone and not self.db.profile.disabledAll then
+		if UnitAffectingCombat("player") then
+				autoEnableAllModules = true
+		else
+				self:AutoEnableAllModules()
+		end
 	end
 end
 
