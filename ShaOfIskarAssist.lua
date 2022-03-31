@@ -245,6 +245,7 @@ function ShaOfIskarAssist:HandleWhisperMessage(msg, sender)
 end
 
 function ShaOfIskarAssist:RemoveServerTag(playerName)
+	if playerName == nil then return playerName end
 	local dashIndex = string.find(playerName, '-')
 	if dashIndex ~= nil then
 		return string.sub(playerName, 1, dashIndex-1)

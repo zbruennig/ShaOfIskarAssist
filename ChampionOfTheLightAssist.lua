@@ -380,6 +380,10 @@ function ChampionOfTheLightAssist:UpdateRangePlayers()
 end
 
 function ChampionOfTheLightAssist:DisplayVersionInfo()
+  if not IsInRaid() then
+    print("You need to be in a raid to do that!")
+    return
+  end
   local versionInfo = SIA.RaidAddonSettings
   print("|cadadad00" .. "===== Sha of Iskar Assist Tattle =====" .. "|r")
   for i = 1, GetNumGroupMembers() do
