@@ -251,8 +251,12 @@ function ChampionOfTheLightAssist:HandleChatCommands(rawInput)
     self:ShowFrames()
     self:HandleWipeActions() -- clear all the debuffs and reset the player frame color
     self:Print("The raid frame has been cleared")
+  elseif input == "version" or input == "ver" or input == "v" then
+    self:DisplayVersionInfo()
+  elseif input == "ping" then
+    SIA:UpdateRaidInfo()
   else
-    self:Print("\nValid arguments:\nshow - Display the frame.\nhide - Hide the frame.\nlock - Lock the frame in place.\nunlock - Unlock the frame for moving.\nreload - Reload the frame.\nclear - Clear all debuffs. Use this if it does not reset after a wipe.")
+    self:Print("\nValid arguments:\nshow - Display the frame.\nhide - Hide the frame.\nlock - Lock the frame in place.\nunlock - Unlock the frame for moving.\nreload - Reload the frame.\nclear - Clear all debuffs.\nversion - Version check")
   end
 end
 
@@ -375,11 +379,30 @@ function ChampionOfTheLightAssist:UpdateRangePlayers()
   end
 end
 
+function ChampionOfTheLightAssist:DisplayVersionInfo()
+  local versionInfo = SIA.RaidAddonSettings
+  print("|cadadad00" .. "===== Sha of Iskar Assist Tattle =====" .. "|r")
+  for i = 1, GetNumGroupMembers() do
+    local unit = string.format("raid%i", i)
+    local name = SIA:RemoveServerTag(UnitName(unit))
+    local info = versionInfo[name]
+    if info ~= nil then
+      print(string.format("|cdd00dd00" .. "%s: %s" .. "|r", name, info))
+    else
+      print(string.format("|c00eeee00" .. "%s: NO VERSION FOUND!".. "|r", name))
+    end
+  end
+end
+
 function ChampionOfTheLightAssist:AddDebuff(guid, debuffName)
     if self:HasDebuff(guid, debuffName) then return end
 
     if debuffName == AURA_HUDDLE_IN_TERROR then
       tinsert(Huddles, guid)
+      local playerGUID = UnitGUID("player")
+      if EyeOfAnzu == playerGUID then
+        PlaySoundFile("Interface\\Addons\\ShaOfIskarAssist\\Media\\huddle.ogg", "Master")
+      end
     end
 end
 
@@ -414,6 +437,14 @@ function ChampionOfTheLightAssist:SetEyeOfAnzu(guid)
     local _, class = UnitClass(unit)
 
     local color = RAID_CLASS_COLORS[class]
+
+    if name == UnitName("player") then
+      if next(Huddles) then
+        PlaySoundFile("Interface\\Addons\\ShaOfIskarAssist\\Media\\huddle.ogg", "Master")
+      else
+        PlaySoundFile("Interface\\Addons\\ShaOfIskarAssist\\Media\\heyyouhavetheball.ogg", "Master")
+      end
+    end
 
     EyeOfAnzuFrame.name:SetText(string.format("|c%s%s|r", color.colorStr, name))
     if role then

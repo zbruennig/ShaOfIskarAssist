@@ -1,3 +1,7 @@
+===== ** 1.0.6 ** =====
+  * Version check
+  * Sound alerts
+
 ===== ** 1.0.5 ** =====
   * Re-implement and rename the addon for Heroic Sha of Fear and MoP API
   * Add an option to show all raid members (enabled by default)

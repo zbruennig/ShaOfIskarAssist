@@ -2,6 +2,7 @@ local _, ShaOfIskarAssist = ...
 LibStub("AceAddon-3.0"):NewAddon(ShaOfIskarAssist, "ShaOfIskarAssist", "AceConsole-3.0", "AceEvent-3.0")
 
 ShaOfIskarAssist:SetDefaultModuleLibraries("AceConsole-3.0", "AceEvent-3.0")
+RegisterAddonMessagePrefix("SOIA")
 -- Local variable to speedup things
 local UnitGUID = UnitGUID
 
@@ -11,17 +12,11 @@ local AceConfigDialog3 = LibStub("AceConfigDialog-3.0")
 
 -- *****************
 -- *** Addon Version
--- *** 1.0.4 (Release)
+-- *** 1.0.6 (Release)
 -- *****************
 ShaOfIskarAssist.MajorVersion = 1
 ShaOfIskarAssist.MinorVersion = 0
--- Stage Number
--- 0 : Alpha
--- 1 : Beta
--- 2 : Release candidate
--- 3 : Final release
-ShaOfIskarAssist.StageVersion = 4
-ShaOfIskarAssist.RevisionVersion = 0
+ShaOfIskarAssist.StageVersion = 6
 
 -- ********************
 -- *** Common Data ****
@@ -29,10 +24,14 @@ ShaOfIskarAssist.RevisionVersion = 0
 
 ShaOfIskarAssist.ShaID = 60999
 ShaOfIskarAssist.ShaEncounterID = 1431
-ShaOfIskarAssist.ShaSubZone = "Dread Expanse"
+ShaOfIskarAssist.ShaSubZone = "Terrace of Endless Spring"
 
 ShaOfIskarAssist.AuraChampionOfTheLightSpellID = 120268
 ShaOfIskarAssist.AuraHuddleInTerrorSpellID = 120629
+
+ShaOfIskarAssist.VersionRequest = "VERSION_REQUEST"
+ShaOfIskarAssist.VersionRequestChannel = "RAID"
+ShaOfIskarAssist.RaidAddonSettings = {}
 
 local Healers = {}
 local Tanks = {}
@@ -104,8 +103,7 @@ function ShaOfIskarAssist:OnEnable()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", "HandleTargetChanged")
 	self:RegisterEvent("UPDATE_MOUSEOVER_UNIT", "HandleMouseoverChanged")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "HandleDelayedAction")
-	self:RegisterEvent("ZONE_CHANGED", "HandleSubZoneChanged")
-	self:RegisterEvent("ZONE_CHANGED_INDOORS", "HandleSubZoneChanged")
+	self:RegisterEvent("CHAT_MSG_ADDON", "HandleAddonMessage")
 end
 
 function ShaOfIskarAssist:OnDisable()
@@ -118,11 +116,11 @@ function ShaOfIskarAssist:OnDisable()
 	self:UnregisterEvent("PLAYER_TARGET_CHANGED")
 	self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-	self:UnregisterEvent("ZONE_CHANGED")
-	self:UnregisterEvent("ZONE_CHANGED_INDOORS")
+	self:UnregisterEvent("CHAT_MSG_ADDON")
 end
 
 function ShaOfIskarAssist:UpdateRaidInfo()
+		ShaOfIskarAssist.RaidAddonSettings = {}
 		self:WipeUnits()
 
     for i = 1, self:GetNumMember() do
@@ -136,6 +134,8 @@ function ShaOfIskarAssist:UpdateRaidInfo()
       end
 
     end
+
+		SendAddonMessage("SOIA", self.VersionRequest, self.VersionRequestChannel)
 
 		self:SendMessage("SIA_RAID_INFO_UPDATED")
 end
@@ -201,16 +201,6 @@ function ShaOfIskarAssist:HandleMouseoverChanged()
 	end
 end
 
-function ShaOfIskarAssist:HandleSubZoneChanged()
-	if GetSubZoneText() == self.ShaSubZone and not self.db.profile.disabledAll then
-		if UnitAffectingCombat("player") then
-				autoEnableAllModules = true
-		else
-				self:AutoEnableAllModules()
-		end
-	end
-end
-
 function ShaOfIskarAssist:AutoEnableAllModules()
 	for module, func in pairs(ModulesAutoEnabled) do
 				if module.EnableOnIskar == nil or module.EnableOnIskar == true then
@@ -227,6 +217,41 @@ function ShaOfIskarAssist:HandleDelayedAction()
 	end
 end
 
+function ShaOfIskarAssist:HandleAddonMessage(event, prefix, msg, channel, sender)
+	if prefix == 'SOIA' then
+		if channel == 'RAID' then
+			self:HandleRaidMessage(msg, sender)
+		elseif channel == 'WHISPER' then
+			self:HandleWhisperMessage(msg, sender)
+		end
+	end
+end
+
+function ShaOfIskarAssist:HandleRaidMessage(msg, sender)
+	if msg == self.VersionRequest then
+		local submoduleEnabled = (self.db.profile.modulesEnabled['ChampionOfTheLightAssist'])
+		local disabledAll = self.db.profile.disabledAll
+		local enabledText = (disabledAll or not submoduleEnabled) and 'Disabled' or 'Enabled'
+		messageBack = string.format("v%s (%s)", self:GetVersionString(), enabledText)
+		fixedSender = self:RemoveServerTag(sender)
+		SendAddonMessage("SOIA", messageBack, "WHISPER", fixedSender)
+	end
+end
+
+function ShaOfIskarAssist:HandleWhisperMessage(msg, sender)
+	if string.sub(msg, 1, 1) == 'v' then
+		ShaOfIskarAssist.RaidAddonSettings[self:RemoveServerTag(sender)] = msg
+	end
+end
+
+function ShaOfIskarAssist:RemoveServerTag(playerName)
+	local dashIndex = string.find(playerName, '-')
+	if dashIndex ~= nil then
+		return string.sub(playerName, 1, dashIndex-1)
+	else
+		return playerName
+	end
+end
 
 function ShaOfIskarAssist:AddUnit(unit, guid, role)
   if role == "HEALER" then
@@ -275,19 +300,7 @@ end
 
 
 function ShaOfIskarAssist:GetVersionString()
-	local stage = ""
-	if self.StageVersion == 0 then
-		stage = "Alpha"
-	elseif self.StageVersion == 1 then
-		stage = "Beta"
-	elseif self.StageVersion == 2 then
-		stage = "Release Candidate"
-	elseif self.StageVersion == 3 then
-		stage = "Release"
-	end
-
-	local version = string.format("%i.%i.%i.%i (%s)", self.MajorVersion, self.MinorVersion, self.StageVersion, self.RevisionVersion, stage)
-
+	local version = string.format("%i.%i.%i", self.MajorVersion, self.MinorVersion, self.StageVersion)
 	return version
 end
 
