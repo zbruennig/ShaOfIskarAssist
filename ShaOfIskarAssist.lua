@@ -94,6 +94,7 @@ local defaults = {
 	profile = {
 		disabledAll = false,
 		showAllRaidMembers = true,
+		ignoreSelf = false,
 		modulesEnabled = {
 			ChampionOfTheLightAssist = true,
 		},
@@ -137,14 +138,17 @@ function ShaOfIskarAssist:UpdateRaidInfo()
 		ShaOfIskarAssist.RaidAddonSettings = {}
 		self:WipeUnits()
 
+		local player = UnitName("player")
     for i = 1, self:GetNumMember() do
       local unit = string.format("raid%i", i)
       local guid = UnitGUID(unit)
       local name = UnitName(unit)
 
       if guid and name ~= UNKNOWNOBJECT then
-        local role = UnitGroupRolesAssigned(unit)
-				self:AddUnit(unit, guid, role)
+				if name ~= player or not self.db.profile.ignoreSelf then
+	        local role = UnitGroupRolesAssigned(unit)
+					self:AddUnit(unit, guid, role)
+				end
       end
 
     end
@@ -457,10 +461,22 @@ function ShaOfIskarAssist:GenerateOptions()
 							self:UpdateRaidInfo()
 						end,
 					},
+					ignoreSelf = {
+						type = "toggle",
+						name = "Do Not Show Yourself",
+						desc = "Ignore frame for your own character since you cannot pass to yourself.",
+						order = 3,
+						descStyle = "tooltip",
+						get = function() return self.db.profile.ignoreSelf end,
+						set = function(_ , ignoreSelf)
+							self.db.profile.ignoreSelf = ignoreSelf
+							self:UpdateRaidInfo()
+						end,
+					},
 					modules = {
 						type = "group",
 						name = "",
-						order = 3,
+						order = 4,
 						inline = true,
 						disabled = function() return self.db.profile.disabledAll end,
 						args = {
