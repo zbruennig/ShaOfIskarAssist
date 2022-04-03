@@ -27,7 +27,7 @@ local SKAM_BAR = [[Interface\Addons\ShaOfIskarAssist\Media\skam_bar]]
 -- ********************
 -- *** Macro Format ***
 -- ********************
-local MacroEyeOfAnzu = "/tar %s\n/run if UnitAura('player', 'Champion of the Light') and UnitInRange(%s) then SendChatMessage('Ball to '..UnitName(%s), 'YELL') end\n/cancelaura Ice Block\n/stopcasting\n/stopcasting\n/click ExtraActionButton1\n/targetlasttarget"
+local MacroEyeOfAnzu = "/tar %s\n/run if UnitDebuff('player', 'Champion of the Light') and UnitInRange(%s) then SendChatMessage('Ball to '..UnitName(%s), 'YELL') end\n/cancelaura Ice Block\n/stopcasting\n/stopcasting\n/click ExtraActionButton1\n/targetlasttarget"
 
 -- ************
 -- *** Data ***
@@ -41,6 +41,7 @@ local _, MyClass = UnitClass("player")
 
 
 local Huddles = {}
+local Dead = {}
 local EyeOfAnzu = nil
 
 local PreviousHealerCount = 0
@@ -63,7 +64,9 @@ local defaults = {
     scale = 1.0,
     xPos = 100,
     yPos = 100,
-    frameStrata = "HIGH",
+    voiceAlerts = true,
+    hideSelf = false,
+    frameStrata = "BACKGROUND",
     rangeIndicator = {
       enable = true,
       alpha = 0.3,
@@ -208,6 +211,7 @@ function ChampionOfTheLightAssist:OnDisable()
   DpsData = nil
 
   Huddles = nil
+  Dead = nil
   EyeOfAnzu = nil
 
   PreviousHealerCount = nil
@@ -404,7 +408,7 @@ function ChampionOfTheLightAssist:AddDebuff(guid, debuffName)
     if debuffName == AURA_HUDDLE_IN_TERROR then
       tinsert(Huddles, guid)
       local playerGUID = UnitGUID("player")
-      if EyeOfAnzu == playerGUID then
+      if EyeOfAnzu == playerGUID and self.db.profile.voiceAlerts then
         PlaySoundFile("Interface\\Addons\\ShaOfIskarAssist\\Media\\huddle.ogg", "Master")
       end
     end
@@ -430,6 +434,13 @@ function ChampionOfTheLightAssist:HasDebuff(guid, debuffName)
   	return false, nil
 end
 
+function ChampionOfTheLightAssist:IsDead(guid)
+  for index, playerGUID in ipairs(Dead) do
+    if guid == playerGUID then return true, index end
+  end
+  return false, nil
+end
+
 function ChampionOfTheLightAssist:SetEyeOfAnzu(guid)
   if not guid and not EyeOfAnzu then return end
 
@@ -441,8 +452,7 @@ function ChampionOfTheLightAssist:SetEyeOfAnzu(guid)
     local _, class = UnitClass(unit)
 
     local color = RAID_CLASS_COLORS[class]
-
-    if name == UnitName("player") then
+    if name == UnitName("player") and self.db.profile.voiceAlerts then
       if next(Huddles) then
         PlaySoundFile("Interface\\Addons\\ShaOfIskarAssist\\Media\\huddle.ogg", "Master")
       else
@@ -495,33 +505,72 @@ function ChampionOfTheLightAssist:RemoveWind(guid)
   frame.texture:SetVertexColor(1, 1, 1, 1)
 end
 
+function ChampionOfTheLightAssist:CheckAndUpdateIfUnitIsDead(guid)
+  unit = SIA:GetUnit(guid)
+  local isDead = UnitIsDeadOrGhost(unit) and not UnitIsFeignDeath(unit)
+  if isDead then
+    local role = UnitGroupRolesAssigned(unit)
+    local frame = self:GetPlayerFrame(guid, role)
+    tinsert(Dead, guid)
+    if not frame then return end
+    self:RemoveDebuff(guid, AURA_HUDDLE_IN_TERROR)
+    frame.texture:SetVertexColor(0.1, 0.1, 0.1, 1)
+  end
+end
+
+function ChampionOfTheLightAssist:CheckAndUpdateIfUnitIsAlive(guid)
+  unit = SIA:GetUnit(guid)
+  local isDead = UnitIsDeadOrGhost(unit) and not UnitIsFeignDeath(unit)
+  local _, index = self:IsDead(guid)
+  if not isDead then
+    local role = UnitGroupRolesAssigned(unit)
+    local frame = self:GetPlayerFrame(guid, role)
+    tremove(Dead, index)
+    if not frame then return end
+    if self:HasDebuff(guid, AURA_HUDDLE_IN_TERROR) then
+      frame.texture:SetVertexColor(color.r, color.g, color.b, 1)
+    else
+      frame.texture:SetVertexColor(1, 1, 1, 1)
+    end
+  end
+end
+
 -- **********************
 -- *** Event Handlers ***
 -- **********************
 function ChampionOfTheLightAssist:HandleCombatLog(event, timestamp, message, _, sourceGUID, sourceName, _, _, destGUID, destName, destFlags, destFlags2, ...)
 	local isPlayer = bit.band(destFlags, COMBATLOG_OBJECT_TYPE_PLAYER) > 0
   local isFriendly = bit.band(destFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-	 local isInRaid = bit.band(destFlags, COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE) > 0
+	local isInRaid = bit.band(destFlags, COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE) > 0
 
     -- check if it's a friendly player who is in the raid
-    if isPlayer and isFriendly and isInRaid then
+  if isPlayer and isFriendly and isInRaid then
 		--local destName, _ = strsplit("-", destName)
 		if message == "SPELL_AURA_APPLIED" or message  == "SPELL_AURA_REFRESH" or message == "SPELL_AURA_APPLIED_DOSE" then
 			local spellID, spellName = ...
-
 			if spellName == AURA_CHAMPION_OF_THE_LIGHT then -- or spellID == 41635 test
 				self:SetEyeOfAnzu(destGUID)
 			elseif spellName == AURA_HUDDLE_IN_TERROR then -- spellID == 17
 				self:AddWind(destGUID)
+      elseif spellID == 19506 or spellID == 113742 or spellID == 30809 or spellID == 77747
+        or spellID == 55610 or spellID == 24907 or spellID == 49868 or spellID == 15473 or spellID == 51470
+        or spellID == 17007 or spellID == 116956 then
+          -- check if aura buff spell is applied
+          self:CheckAndUpdateIfUnitIsAlive(destGUID)
 			end
 		elseif message == "SPELL_AURA_REMOVED" or message == "SPELL_AURA_REMOVED_DOSE" then
 			local spellID, spellName = ...
-
 			if spellName == AURA_CHAMPION_OF_THE_LIGHT then -- or spellID == 41635 test pom
 				self:SetEyeOfAnzu(nil)
 			elseif spellName == AURA_HUDDLE_IN_TERROR then
 				self:RemoveWind(destGUID)
+      elseif spellID == 21562 or spellID == 109773 or spellID == 1126 or spellID == 20217
+      or spellID == 115921 or spellID == 19740 or spellID == 1459 or spellID == 109773 or spellID == 116781 then
+        -- check if applied buff spell is gone
+        self:CheckAndUpdateIfUnitIsDead(destGUID)
 			end
+    elseif message == "UNIT_DIED" then
+      self:CheckAndUpdateIfUnitIsDead(destGUID)
 		end
 
 	elseif message == "UNIT_DIED" then
@@ -549,6 +598,7 @@ function ChampionOfTheLightAssist:HandleWipeActions()
 
     -- Clear all the debuff tables and variables
     wipe(Huddles)
+    wipe(Dead)
     EyeOfAnzu = nil
 end
 
@@ -710,7 +760,6 @@ function ChampionOfTheLightAssist:UpdatePlayerFrame(frame, unit)
   end
 
   frame.name:SetTextColor(color.r, color.g, color.b, 1)
-
   frame.button:SetAttribute("macrotext", string.format(MacroEyeOfAnzu, unit, '"'..unit..'"', '"'..unit..'"'))
   frame.button:SetAttribute("unit", unit)
 end
@@ -1018,7 +1067,7 @@ the MEDIUM strata) :
               show = {
                 type = "toggle",
                 name = "Show",
-                desc = "Show the eye of Anzu frame which displays the holder.",
+                desc = "Show the Champion of the Light frame which displays the holder.",
                 order = 1,
                 get = function() return self.db.profile.eyeOfAnzu.show end,
                 set = function(_, value)
@@ -1031,6 +1080,21 @@ the MEDIUM strata) :
                   self.db.profile.eyeOfAnzu.show = value
                 end,
 
+              }
+            }
+          },
+          extraFeatures = {
+            type= "group",
+            name = "Extra Features",
+            inline = true,
+            args = {
+              voiceAlerts = {
+                type = "toggle",
+                name = "Voice Alerts",
+                desc = "Play voice lines when you get Champion of the Light.",
+                order = 1,
+                get = function() return self.db.profile.voiceAlerts end,
+                set = function(_, value) self.db.profile.voiceAlerts = value end,
               }
             }
           }

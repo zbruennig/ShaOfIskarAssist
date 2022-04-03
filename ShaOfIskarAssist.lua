@@ -16,7 +16,7 @@ local AceConfigDialog3 = LibStub("AceConfigDialog-3.0")
 -- *****************
 ShaOfIskarAssist.MajorVersion = 1
 ShaOfIskarAssist.MinorVersion = 0
-ShaOfIskarAssist.StageVersion = 6
+ShaOfIskarAssist.StageVersion = '7.experimental'
 
 -- ********************
 -- *** Common Data ****
@@ -32,6 +32,20 @@ ShaOfIskarAssist.AuraHuddleInTerrorSpellID = 120629
 ShaOfIskarAssist.VersionRequest = "VERSION_REQUEST"
 ShaOfIskarAssist.VersionRequestChannel = "RAID"
 ShaOfIskarAssist.RaidAddonSettings = {}
+
+-- ShaOfIskarAssist.BuffAuras = {
+-- 		[19506] = true,
+-- 		[113742] = true,
+-- 		[30809] = true,
+-- 		[77747] = true,
+-- 		[55610] = true,
+-- 		[24907] = true,
+-- 		[49868] = true,
+-- 		[15473] = true,
+-- 		[51470] = true,
+-- 		[17007] = true,
+-- 		[116956] = true
+-- }
 
 local Healers = {}
 local Tanks = {}
@@ -301,7 +315,7 @@ end
 
 
 function ShaOfIskarAssist:GetVersionString()
-	local version = string.format("%i.%i.%i", self.MajorVersion, self.MinorVersion, self.StageVersion)
+	local version = string.format("%i.%i.%s", self.MajorVersion, self.MinorVersion, self.StageVersion)
 	return version
 end
 
