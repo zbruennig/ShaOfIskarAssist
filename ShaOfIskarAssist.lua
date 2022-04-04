@@ -16,7 +16,7 @@ local AceConfigDialog3 = LibStub("AceConfigDialog-3.0")
 -- *****************
 ShaOfIskarAssist.MajorVersion = 1
 ShaOfIskarAssist.MinorVersion = 0
-ShaOfIskarAssist.StageVersion = '7.experimental'
+ShaOfIskarAssist.StageVersion = '7'
 
 -- ********************
 -- *** Common Data ****

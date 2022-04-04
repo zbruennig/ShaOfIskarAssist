@@ -552,12 +552,9 @@ function ChampionOfTheLightAssist:HandleCombatLog(event, timestamp, message, _, 
 				self:SetEyeOfAnzu(destGUID)
 			elseif spellName == AURA_HUDDLE_IN_TERROR then -- spellID == 17
 				self:AddWind(destGUID)
-      elseif spellID == 19506 or spellID == 113742 or spellID == 30809 or spellID == 77747
-        or spellID == 55610 or spellID == 24907 or spellID == 49868 or spellID == 15473 or spellID == 51470
-        or spellID == 17007 or spellID == 116956 then
-          -- check if aura buff spell is applied
-          self:CheckAndUpdateIfUnitIsAlive(destGUID)
 			end
+    elseif message == "SPELL_CAST_START" or message == "SPELL_CAST_SUCCESS" then
+      self:CheckAndUpdateIfUnitIsAlive(destGUID)
 		elseif message == "SPELL_AURA_REMOVED" or message == "SPELL_AURA_REMOVED_DOSE" then
 			local spellID, spellName = ...
 			if spellName == AURA_CHAMPION_OF_THE_LIGHT then -- or spellID == 41635 test pom
