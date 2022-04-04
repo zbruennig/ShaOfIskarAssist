@@ -554,7 +554,9 @@ function ChampionOfTheLightAssist:HandleCombatLog(event, timestamp, message, _, 
 				self:AddWind(destGUID)
 			end
     elseif message == "SPELL_CAST_START" or message == "SPELL_CAST_SUCCESS" then
-      self:CheckAndUpdateIfUnitIsAlive(destGUID)
+      if self:IsDead(destGUID) then
+        self:CheckAndUpdateIfUnitIsAlive(destGUID)
+      end
 		elseif message == "SPELL_AURA_REMOVED" or message == "SPELL_AURA_REMOVED_DOSE" then
 			local spellID, spellName = ...
 			if spellName == AURA_CHAMPION_OF_THE_LIGHT then -- or spellID == 41635 test pom
