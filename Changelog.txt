@@ -1,3 +1,8 @@
+===== ** 1.0.7 ** =====
+  * Yells when passing the ball
+  * Option to not show self
+  * Update frames when players are dead
+
 ===== ** 1.0.6 ** =====
   * Version check
   * Sound alerts
